@@ -21,8 +21,9 @@ class TimeSeries:
     >>> data = list(range(10))
     >>> timeSeries = TimeSeries(data)
     >>> print(timeSeries)
+    TimeSeries with 10 elements: [0, 1, 2, 3, 4, 5, ...]
     >>> timeSeries[3]
-    2
+    3
     """
     
     def __init__(self, data):
@@ -41,7 +42,7 @@ class TimeSeries:
         
     def __repr__(self):
         class_name = type(self).__name__
-        components = reprlib.repr(list(itertools.islice(self._data, 0, self._length)))
+        components = reprlib.repr(list(itertools.islice(self._data, 0, len(self))))
         components = components[components.find('['):]
         return "{}(data={})".format(class_name, components)
 
@@ -50,9 +51,9 @@ class TimeSeries:
         Only prints the first six elements of the time series.
         """
         class_name = type(self).__name__
-        components = reprlib.repr(list(itertools.islice(self._data, 0, self._length)))
+        components = reprlib.repr(list(itertools.islice(self._data, 0, len(self))))
         components = components[components.find('['):]
-        return "{} with {} elements: {}".format(class_name, self._length, components)
+        return "{} with {} elements: {}".format(class_name, len(self), components)
 
 
 class ArrayTimeSeries(TimeSeries):
@@ -72,14 +73,12 @@ class ArrayTimeSeries(TimeSeries):
     >>> data = list(range(10))
     >>> arrayTimeSeries = ArrayTimeSeries(data)
     >>> print(arrayTimeSeries)
+    ArrayTimeSeries with 10 elements: [0, 1, 2, 3, 4, 5, ...]
     >>> arrayTimeSeries[3]
-    2
-
+    3
     """
     def __init__(self, data):
-        self._data = np.empty(len(data))
-        for idx, value in enumerate(data):
-            self._data[idx] = value
+        self._data = np.array(data)
 
 
 if __name__ == '__main__':
