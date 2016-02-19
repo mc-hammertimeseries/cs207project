@@ -3,6 +3,7 @@ import reprlib
 import numpy as np
 from doctest import run_docstring_examples as dtest
 
+
 class TimeSeries:
     """
     A class to store time series data. Supports time series data of any type, including mixed type.
@@ -37,6 +38,15 @@ class TimeSeries:
     >>> timeSeries[3] = 100
     >>> timeSeries[3]
     100
+
+    >>> a = TimeSeries([0,5,10], [1,2,3])
+    >>> b = TimeSeries([2.5,7.5], [100, -100])
+    >>> a.interpolate([1])
+    TimeSeries(times=([1.0], values=[1.2]))
+    >>> a.interpolate(b.times())
+    TimeSeries(times=([2.5, 7.5], values=[1.5, 2.5]))
+    >>> a.interpolate([-100,100])
+    TimeSeries(times=([-100.0, 100.0], values=[1.0, 3.0]))
     """
     
     def __init__(self, times, values):
@@ -54,8 +64,8 @@ class TimeSeries:
         """
         Gets the value corresponding to a time. Uses binary search.
         """
-        idx = np.searchsorted(self._times, time) # binary search
-        # the only case when self._times[idx]!=time is when time is not in self._times.
+        idx = np.searchsorted(self._times, time)  # binary search
+        # The only case when self._times[idx]!=time is when time is not in self._times
         if self._times[idx] != time:
             raise ValueError('time {} not in TimeSeries'.format(time))
         return self._values[idx]
@@ -64,8 +74,8 @@ class TimeSeries:
         """
         Sets the value corresponding to a time. Uses binary search.
         """
-        idx = np.searchsorted(self._times, time) # binary search
-        # the only case when self._times[idx]!=time is when time is not in self._times.
+        idx = np.searchsorted(self._times, time)  # binary search
+        # The only case when self._times[idx]!=time is when time is not in self._times
         if self._times[idx] != time:
             raise ValueError('time {} not in TimeSeries'.format(time))
         self._values[idx] = value
@@ -73,6 +83,37 @@ class TimeSeries:
     def __iter__(self):
         for v in self._values:
             yield v
+
+    def interpolate(self, time_points):
+        """
+        Adds an interpolating value for each point in time_points using linear
+        interpolation. If a time point is already in the time series, returns the
+        corresponding (time, value) pair as a TimeSeries.
+        """
+        new_times = np.empty_like(time_points, dtype=float)
+        new_values = np.empty_like(time_points, dtype=float)
+
+        for i, time in enumerate(time_points):
+            # Check boundary conditions
+            if time <= self._times[0]:
+                new_times[i] = time
+                new_values[i] = self._values[0]
+                
+            elif time >= self._times[-1]:
+                new_times[i] = time
+                new_values[i] = self._values[-1]
+                
+            else:
+                # Calculate interpolation value
+                idx = np.searchsorted(self._times, time)
+                v_1, v_2 = self._values[idx - 1], self._values[idx]
+                t_1, t_2 = self._times[idx - 1], self._times[idx]
+                slope = (v_2 - v_1) / (t_2 - t_1)
+                dt = time - t_1  # 0 if time is already in time series
+                new_times[i] = time
+                new_values[i] = slope * dt + v_1  # = v1 if time already in time series
+
+        return TimeSeries(new_times, new_values)
 
     def values(self):
         return self._values
