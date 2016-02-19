@@ -81,7 +81,7 @@ class TimeSeries:
         return self._times
 
     def items(self):
-        return [(t, v) for t, v in zip(self._times, self._values)]
+        return list(zip(self._times, self._values))
         
     def __repr__(self):
         """
