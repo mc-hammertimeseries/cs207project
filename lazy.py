@@ -33,6 +33,10 @@ def lazy_add(a, b):
 def lazy_mul(a, b):
 	return a * b
 
+@lazy
+def check_length(a,b):
+  return len(a) == len(b)
+
 
 if __name__ == "__main__":
 	print(lazy_add(1, 2).eval())
