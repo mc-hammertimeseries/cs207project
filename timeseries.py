@@ -14,8 +14,10 @@ class TimeSeries:
     
     Parameters
     ----------
-    data : list
-        a sequence of items of any type, including mixed type
+    times : list
+        a sequence of floats
+    values: list
+        a sequence of floats
 
     Examples
     --------
