@@ -140,7 +140,7 @@ class TimeSeries:
 
     def iteritems(self):
         idx = 0
-        while idx < len(self):
+        while True:
             yield (self._times[idx], self._values[idx])
             idx += 1
 
