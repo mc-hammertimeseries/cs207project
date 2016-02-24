@@ -75,11 +75,29 @@ class TimeSeries:
     Traceback (most recent call last):
         ...
     ValueError: can't take median of empty list
+
+    # Iterator
+    >>> x = TimeSeries([1, 2, 3, 4],[1, 4, 9, 16])
+    >>> for i in x.itervalues(): print(i)
+    1.0
+    4.0
+    9.0
+    16.0
+    >>> for i in x.itertimes(): print(i)
+    1.0
+    2.0
+    3.0
+    4.0
+    >>> for i in x.iteritems(): print(i)
+    (1.0, 1.0)
+    (2.0, 4.0)
+    (3.0, 9.0)
+    (4.0, 16.0)
     """
     
     def __init__(self, times, values):
-        self._times = np.array(times)
-        self._values = np.array(values)
+        self._times = np.array(times, dtype=float)
+        self._values = np.array(values, dtype=float)
 
     def __contains__(self, time):
         return (time in self._times)
@@ -111,6 +129,20 @@ class TimeSeries:
     def __iter__(self):
         for v in self._values:
             yield v
+
+    def itertimes(self):
+        for t in self._times:
+            yield t
+
+    def itervalues(self):
+        for v in self._values:
+            yield v
+
+    def iteritems(self):
+        idx = 0
+        while idx < len(self):
+            yield (self._times[idx], self._values[idx])
+            idx += 1
 
     def interpolate(self, time_points):
         """
@@ -147,6 +179,7 @@ class TimeSeries:
         if (len(self._values) == 0):
             raise ValueError("can't take mean of empty list")
         return self._values.mean()
+
 
     def median(self):
         if (len(self._values) == 0):
