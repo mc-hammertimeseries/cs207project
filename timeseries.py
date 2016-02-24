@@ -139,10 +139,8 @@ class TimeSeries:
             yield v
 
     def iteritems(self):
-        idx = 0
-        while True:
-            yield (self._times[idx], self._values[idx])
-            idx += 1
+        for (t, v) in zip(self._times, self._values):
+            yield (t, v)
 
     def interpolate(self, time_points):
         """
