@@ -57,7 +57,7 @@ class TimeSeries:
     # Lazy property
     >>> x = TimeSeries([1, 2, 3, 4],[1, 4, 9, 16])
     >>> x.lazy.eval()
-    TimeSeries(times=([1, 2, 3, 4], values=[1, 4, 9, 16]))
+    TimeSeries(times=([1.0, 2.0, 3.0, 4.0], values=[1.0, 4.0, 9.0, 16.0]))
     >>> thunk = check_length(TimeSeries(range(0,4),range(1,5)), TimeSeries(range(1,5),range(2,6)))
     >>> thunk.eval()
     True
