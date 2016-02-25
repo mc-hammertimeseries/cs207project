@@ -33,7 +33,7 @@ class TimeSeries:
     >>> timeSeries.times()
     array([ 0.,  1.,  2.,  3.,  4.])
     >>> timeSeries.values()
-    array([5., 6., 7., 8., 9.])
+    array([ 5.,  6.,  7.,  8.,  9.])
     >>> timeSeries.items()
     [(0., 5.), (1., 6.), (2., 7.), (3., 8.), (4., 9.)]
 
