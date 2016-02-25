@@ -35,7 +35,7 @@ class TimeSeries:
     >>> timeSeries.values()
     array([ 5.,  6.,  7.,  8.,  9.])
     >>> timeSeries.items()
-    [(0., 5.), (1., 6.), (2., 7.), (3., 8.), (4., 9.)]
+    [(0.0, 5.0), (1.0, 6.0), (2.0, 7.0), (3.0, 8.0), (4.0, 9.0)]
 
     # Setting items
     >>> timeSeries[3]
