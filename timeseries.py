@@ -39,10 +39,10 @@ class TimeSeries:
 
     # Setting items
     >>> timeSeries[3]
-    8
+    8.0
     >>> timeSeries[3] = 100
     >>> timeSeries[3]
-    100
+    100.0
 
     # Interpolation
     >>> a = TimeSeries([0,5, 10], [1, 2, 3])
