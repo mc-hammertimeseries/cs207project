@@ -29,19 +29,19 @@ def test_generator_length():
         total += val
     assert testSeries.mean() == total/len(testSeries)
     
-def test_add:
+def test_add():
     t1 = ts.TimeSeries(range(10), range(1, 11))
     t2 = ts.TimeSeries(range(10), range(1, 11))
     assert t1+t2 == ts.TimeSeries(range(10), [2*x for x in range(1,11)])
     assert 10+t1 == ts.TimeSeries(range(10), [10+x for x in range(1,11)])
     
-def test_mul:
+def test_mul():
     t1 = ts.TimeSeries(range(10), range(1, 11))
     t2 = ts.TimeSeries(range(10), range(1, 11))
     assert t1*t2 == ts.TimeSeries(range(10), [x*x for x in range(1,11)])
     assert 10*t1 == ts.TimeSeries(range(10), [10*x for x in range(1,11)])
     
-def test_sub:
+def test_sub():
     t1 = ts.TimeSeries(range(10), range(1, 11))
     t2 = ts.TimeSeries(range(10), range(1, 11))
     assert t1-t2 == ts.TimeSeries(range(10), [0 for x in range(1,11)])
