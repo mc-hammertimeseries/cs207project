@@ -99,14 +99,16 @@ class TimeSeries:
     (4.0, 16.0)
     
     # Operators
-    >>> t = timeseries.TimeSeries([1,2,3], [4,5,6])
-    >>> t2 = timeseries.TimeSeries([1,2,3], [7,8,9])
+    >>> t = TimeSeries([1,2,3], [4,5,6])
+    >>> t2 = TimeSeries([1,2,3], [7,8,9])
     >>> t+t2
     TimeSeries(times=([1.0, 2.0, 3.0], values=[11.0, 13.0, 15.0]))
     >>> t-t2
     TimeSeries(times=([1.0, 2.0, 3.0], values=[-3.0, -3.0, -3.0]))
     >>> t*t2
     TimeSeries(times=([1.0, 2.0, 3.0], values=[28.0, 40.0, 54.0]))
+    >>> -t
+    TimeSeries(times=([1.0, 2.0, 3.0], values=[-4.0, -5.0, -6.0]))
     """
     
     def __init__(self, times, values):
