@@ -46,3 +46,9 @@ def test_sub():
     t2 = ts.TimeSeries(range(10), range(1, 11))
     assert t1-t2 == ts.TimeSeries(range(10), [0 for x in range(1,11)])
     assert 10-t1 == ts.TimeSeries(range(10), [10-x for x in range(1,11)])
+    
+def test_binopt_error():
+    t1 = ts.TimeSeries([1,2,3], [4,5,6])
+    t2 = ts.TimeSeries([1,2,4], [7,8,9])
+    with raises(ValueError):
+        t1+t2
