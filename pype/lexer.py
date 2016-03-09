@@ -70,22 +70,22 @@ def find_column(input, token):
 # This actually builds the lexer.
 lexer = ply.lex.lex()  # take out the debug=True once it's working
 
-# Test it out
-data = '''
-3 + 4 * 10
-  + -20 *2
-  input output import
-  _abc 9 9_abc &
-'''
+# # Test it out
+# data = '''
+# 3 + 4 * 10
+#   + -20 *2
+#   input output import
+#   _abc 9 9_abc &
+# '''
 
-# Give the lexer some input
-lexer.input(data)
+# # Give the lexer some input
+# lexer.input(data)
 
-# Tokenize
-while True:
-    tok = lexer.token()
-    if not tok: 
-        break      # No more input
-    print(tok)
-for tok in lexer:
-    print(tok)
+# # Tokenize
+# while True:
+#     tok = lexer.token()
+#     if not tok: 
+#         break      # No more input
+#     print(tok)
+# for tok in lexer:
+#     print(tok)
