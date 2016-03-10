@@ -6,14 +6,15 @@ import operator as op
 import numbers
 import math
 
+
 class TimeSeries:
     """
     A class to store time series data. Supports time series data of any type, including mixed type.
     Supports all sequence operations (__getitem__, __setitem__, __len__).
-    
+
     Attributes
     ----------
-    
+
     Parameters
     ----------
     times : list
@@ -97,7 +98,7 @@ class TimeSeries:
     (2.0, 4.0)
     (3.0, 9.0)
     (4.0, 16.0)
-    
+
     # Operators
     >>> t = TimeSeries([1,2,3], [4,5,6])
     >>> t2 = TimeSeries([1,2,3], [7,8,9])
@@ -110,18 +111,18 @@ class TimeSeries:
     >>> -t
     TimeSeries(times=([1.0, 2.0, 3.0], values=[-4.0, -5.0, -6.0]))
     """
-    
+
     def __init__(self, times, values):
         self._times = np.array(times, dtype=float)
         self._values = np.array(values, dtype=float)
 
     def __contains__(self, time):
         return (time in self._times)
-        
+
     def __len__(self):
         assert len(self._times) == len(self._values), "mismatched times and values lengths"
         return len(self._times)
-    
+
     def __getitem__(self, time):
         """
         Gets the value corresponding to a time. Uses binary search.
@@ -131,7 +132,7 @@ class TimeSeries:
         if self._times[idx] != time:
             raise ValueError('time {} not in TimeSeries'.format(time))
         return self._values[idx]
-    
+
     def __setitem__(self, time, value):
         """
         Sets the value corresponding to a time. Uses binary search.
@@ -172,11 +173,11 @@ class TimeSeries:
             if time <= self._times[0]:
                 new_times[i] = time
                 new_values[i] = self._values[0]
-                
+
             elif time >= self._times[-1]:
                 new_times[i] = time
                 new_values[i] = self._values[-1]
-                
+
             else:
                 # Calculate interpolation value
                 idx = np.searchsorted(self._times, time)
@@ -185,7 +186,8 @@ class TimeSeries:
                 slope = (v_1 - v_0) / (t_1 - t_0)
                 dt = time - t_0  # evaluates to 0 if time is already in time series
                 new_times[i] = time
-                new_values[i] = slope * dt + v_0  # evaluates to v_0 if time is already in time series
+                # evaluates to v_0 if time is already in time series
+                new_values[i] = slope * dt + v_0
 
         return TimeSeries(new_times, new_values)
 
@@ -193,7 +195,6 @@ class TimeSeries:
         if (len(self._values) == 0):
             raise ValueError("can't take mean of empty list")
         return self._values.mean()
-
 
     def median(self):
         if (len(self._values) == 0):
@@ -213,7 +214,7 @@ class TimeSeries:
     @lazy
     def lazy(self):
         return self
-        
+
     def __repr__(self):
         """
         Only prints the first six times and values of the time series
@@ -235,20 +236,22 @@ class TimeSeries:
         v_components = reprlib.repr(list(itertools.islice(self._values, 0, len(self))))
         v_components = v_components[v_components.find('['):]
         return "{} with {} elements: ({}, {})".format(class_name, len(self._times),
-            t_components, v_components)
-    
+                                                      t_components, v_components)
+
     # binary operators
-    
+
     def __eq__(self, other):
         if isinstance(other, TimeSeries):
             if len(self) != len(other):
-                raise ValueError(str(self)+' and '+str(other)+' must have the same time points')
+                raise ValueError(str(self) + ' and ' + str(other) +
+                                 ' must have the same time points')
             self_iter = self.iteritems()
             other_iter = other.iteritems()
             for self_time, self_val in self_iter:
                 other_time, other_val = next(other_iter)
                 if self_time != other_time:
-                    raise ValueError(str(self)+' and '+str(other)+' must have the same time points')
+                    raise ValueError(str(self) + ' and ' + str(other) +
+                                     ' must have the same time points')
                 if self_val != other_val:
                     return False
             return True
@@ -257,9 +260,10 @@ class TimeSeries:
     """
         Generic helper function to handle binary operators that return a timeseries
     """
+
     def _binopt(self, other, func):
         if len(self) != len(other):
-            raise ValueError(str(self)+' and '+str(other)+' must have the same time points')
+            raise ValueError(str(self) + ' and ' + str(other) + ' must have the same time points')
         times = []
         values = []
         self_iter = self.iteritems()
@@ -267,65 +271,66 @@ class TimeSeries:
         for self_time, self_val in self_iter:
             other_time, other_val = next(other_iter)
             if self_time != other_time:
-                raise ValueError(str(self)+' and '+str(other)+' must have the same time points')
+                raise ValueError(str(self) + ' and ' + str(other) +
+                                 ' must have the same time points')
             times += [self_time]
             values += [func(self_val, other_val)]
         return TimeSeries(times, values)
-    
+
     def __add__(self, rhs):
         try:
             if isinstance(rhs, numbers.Real):
-                return TimeSeries(self._times, self._values+rhs) 
+                return TimeSeries(self._times, self._values + rhs)
             elif isinstance(rhs, TimeSeries):
                 return self._binopt(rhs, op.add)
-            else: #
+            else:
                 raise NotImplemented
         except TypeError:
             raise NotImplemented
-            
+
     def __radd__(self, other):
         return self + other
-    
+
     def __mul__(self, rhs):
         try:
             if isinstance(rhs, numbers.Real):
-                return TimeSeries(self._times, self._values*rhs) 
+                return TimeSeries(self._times, self._values * rhs)
             elif isinstance(rhs, TimeSeries):
                 return self._binopt(rhs, op.mul)
-            else: #
+            else:
                 raise NotImplemented
         except TypeError:
             raise NotImplemented
-            
+
     def __rmul__(self, other):
         return self * other
-    
+
     def __sub__(self, rhs):
         try:
             if isinstance(rhs, numbers.Real):
-                return TimeSeries(self._times, self._values-rhs) 
+                return TimeSeries(self._times, self._values - rhs)
             elif isinstance(rhs, TimeSeries):
                 return self._binopt(rhs, op.sub)
-            else: #
+            else:
                 raise NotImplemented
         except TypeError:
             raise NotImplemented
-            
+
     def __rsub__(self, other):
         return -self + other
-    
+
     # unary operators
     def __neg__(self):
-        return TimeSeries(self._times, -self._values) 
-    
+        return TimeSeries(self._times, -self._values)
+
     def __pos__(self):
         return TimeSeries(self._times, +self._values)
-    
-    # why are these not element-wise? says in the lab to be same semantics as vector class    
+
+    # why are these not element-wise? says in the lab to be same semantics as vector class
     def __abs__(self):
         return math.sqrt(sum(self._values))
-    
-    def __bool__(self): 
+
+    def __bool__(self):
         return bool(abs(self))
 
 if __name__ == '__main__':
