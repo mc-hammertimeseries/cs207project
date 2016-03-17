@@ -20,23 +20,32 @@ def p_statement_list(p):
     else:
         p[0] = [p[1]]
 
-# TODO Implement production rules for all other grammar rules and construct a
-#      full AST.
-
-
-# TODO
 def p_import_statement(p):
     r'import_statement : LPAREN IMPORT ID RPAREN'
     p[0] = ASTImport(p[3])
 
-    # TODO
+def p_component(p):
     r'''component : LBRACE ID expression_list RBRACE'''
-    # TODO
+    p[0] = ASTComponent(p[3])
+
+def p_expression_list(p):
     r'''expression_list : expression_list expression
                       | expression'''
-    # TODO
+    expressions = []
+    for expression in p[1]:
+        p_expression(expression)  # DO I NEED TO DO THIS OR IS IT AUTOMATIC?
+        expressions.append(expression)  # This should append ASTNodes from line ^
+    p[0] = expressions
+
+def p_expression(p):
     r'''expression : LPAREN INPUT declaration_list RPAREN
                  | LPAREN INPUT RPAREN'''
+    input_expression = ASTInputExpr(p[2])
+    p[0] = [input_expression]
+    if hasattr(p[3], __len__):
+        p_delcarations_list(p[3])  # TODO: write that function
+        p[0].append(p[3])
+
     # TODO
     r'''expression : LPAREN OUTPUT declaration_list RPAREN
                  | LPAREN OUTPUT RPAREN'''
