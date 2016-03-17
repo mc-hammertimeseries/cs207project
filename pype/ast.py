@@ -1,6 +1,3 @@
-# from .error import *
-
-
 class ASTVisitor():
 
     def visit(self, astnode):
@@ -27,6 +24,9 @@ class ASTNode(object):
     def pprint(self, indent=''):
         '''Recursively prints a formatted string representation of the AST.'''
         # TODO
+        print(indent + self.__class__.__name__)
+        for child in self._children:
+            child.pprint("   ")
 
     def walk(self, visitor):
         '''Traverses an AST, calling visitor.visit() on every node.
@@ -36,6 +36,9 @@ class ASTNode(object):
         children will all be visited before its siblings.
         The visitor may modify attributes, but may not add or delete nodes.'''
         # TODO
+        visitor.visit(self)
+        for child in self._children:
+            child.walk(visitor)
 
 
 class ASTProgram(ASTNode):
@@ -45,8 +48,14 @@ class ASTProgram(ASTNode):
         self.children = statements
 
 
-class ASTImport(ASTNode):  # TODO
-    pass
+class ASTImport(ASTNode):
+    def __init__(self, mod):
+        super().__init__()
+        self.mod = mod
+        
+    @property
+    def module(self):
+        return self.mod
 
 
 class ASTComponent(ASTNode):  # TODO

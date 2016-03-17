@@ -28,7 +28,10 @@ def p_statement_list(p):
 #      full AST.
 
 # TODO
+def p_import_statement(p):
     r'import_statement : LPAREN IMPORT ID RPAREN'
+    p[0] = ASTImport(p[3])
+    
 # TODO
     r'''component : LBRACE ID expression_list RBRACE'''
 # TODO
@@ -80,6 +83,7 @@ def p_statement_list(p):
 
 
 def p_error(p):
+    pass
 
 start = 'program'
 parser = ply.yacc.yacc()  # To get more information, add debug=True
