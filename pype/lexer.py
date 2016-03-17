@@ -46,30 +46,22 @@ t_ignore = r'[ ]+'
 reserved = {'input': 'INPUT', 'output': 'OUTPUT', 'import': 'IMPORT'}
 
 # Ignore comments. Comments in PyPE are just like in Python. Section 4.5.
-
-
 def t_COMMENT(t):
     r'\#.*'
     pass  # comments are ignored
 
 # Rule for newlines that track line numbers. Section 4.6.
-
-
 def t_newline(t):
     r'\n+'
     t.lexer.lineno += len(t.value)
 
 # Error-handling routine. It should print both line and column numbers.
-
-
 def t_error(t):
     col = find_column(t.lexer.lexdata, t)
     print("Error at line {}, column {}".format(t.lexer.lineno, col))
     t.lexer.skip(1)
 
 # Column finder from PLY documentation
-
-
 def find_column(input, token):
     last_cr = input.rfind('\n', 0, token.lexpos)
     if last_cr < 0:

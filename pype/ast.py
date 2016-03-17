@@ -1,10 +1,12 @@
 class ASTVisitor():
+
     def visit(self, astnode):
         'A read-only function which looks at a single AST node.'
         pass
 
 
 class ASTNode(object):
+
     def __init__(self):
         self.parent = None
         self._children = []
@@ -40,6 +42,7 @@ class ASTNode(object):
 
 
 class ASTProgram(ASTNode):
+
     def __init__(self, statements):
         super().__init__()
         self.children = statements
@@ -56,6 +59,7 @@ class ASTImport(ASTNode):
 
 
 class ASTComponent(ASTNode):  # TODO
+
     @property
     def name(self):  # TODO return an element of self.children
         pass
@@ -97,9 +101,8 @@ class ASTEvalExpr(ASTNode):  # TODO
         return self.children[1:]
 
 # These are already complete.
-
-
 class ASTID(ASTNode):
+
     def __init__(self, name, typedecl=None):
         super().__init__()
         self.name = name
@@ -107,6 +110,7 @@ class ASTID(ASTNode):
 
 
 class ASTLiteral(ASTNode):
+
     def __init__(self, value):
         super().__init__()
         self.value = value

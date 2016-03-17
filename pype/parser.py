@@ -4,15 +4,11 @@ from lexer import tokens, reserved
 from ast import *
 
 # Here's an example production rule which constructs an AST node
-
-
 def p_program(p):
     r'program : statement_list'
     p[0] = ASTProgram(p[1])
 
 # Here's an example production rule which simply aggregates lists of AST nodes.
-
-
 def p_statement_list(p):
     r'''statement_list : statement_list component
                        | statement_list import_statement
