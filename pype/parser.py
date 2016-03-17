@@ -1,7 +1,7 @@
 import ply.yacc
 
-from .lexer import tokens, reserved
-from .ast import *
+from lexer import tokens, reserved
+from ast import *
 
 # Here's an example production rule which constructs an AST node
 
@@ -27,50 +27,51 @@ def p_statement_list(p):
 # TODO Implement production rules for all other grammar rules and construct a
 #      full AST.
 
+
 # TODO
 def p_import_statement(p):
     r'import_statement : LPAREN IMPORT ID RPAREN'
     p[0] = ASTImport(p[3])
-    
-# TODO
+
+    # TODO
     r'''component : LBRACE ID expression_list RBRACE'''
-# TODO
+    # TODO
     r'''expression_list : expression_list expression
                       | expression'''
-# TODO
+    # TODO
     r'''expression : LPAREN INPUT declaration_list RPAREN
                  | LPAREN INPUT RPAREN'''
-# TODO
+    # TODO
     r'''expression : LPAREN OUTPUT declaration_list RPAREN
                  | LPAREN OUTPUT RPAREN'''
-# TODO
+    # TODO
     r'''declaration_list : declaration_list declaration
                        | declaration'''
-# TODO
+    # TODO
     r'''declaration : LPAREN type ID RPAREN
                   | ID'''
-# TODO
+    # TODO
     r'''type : ID'''
-# TODO
+    # TODO
     r'''expression : LPAREN ASSIGN ID expression RPAREN'''
-# TODO
+    # TODO
     r'''expression : LPAREN ID parameter_list RPAREN
                  | LPAREN ID RPAREN'''
-# TODO
+    # TODO
     r'''expression : LPAREN OP_ADD parameter_list RPAREN'''
-# TODO
+    # TODO
     r'''expression : LPAREN OP_SUB parameter_list RPAREN'''
-# TODO
+    # TODO
     r'''expression : LPAREN OP_MUL parameter_list RPAREN'''
-# TODO
+    # TODO
     r'''expression : LPAREN OP_DIV parameter_list RPAREN'''
-# TODO
+    # TODO
     r'''expression : ID'''
-# TODO
+    # TODO
     r'''expression : NUMBER'''
-# TODO
+    # TODO
     r'''expression : STRING'''
-# TODO
+    # TODO
     r'''parameter_list : parameter_list expression
                      | expression'''
 
@@ -85,5 +86,6 @@ def p_import_statement(p):
 def p_error(p):
     pass
 
+
 start = 'program'
-parser = ply.yacc.yacc()  # To get more information, add debug=True
+parser = ply.yacc.yacc(debug=True)  # To get more information, add debug=True

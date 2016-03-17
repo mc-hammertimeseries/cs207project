@@ -7,9 +7,14 @@ reserved = {  # pattern : token-name
 }
 # 'tokens' is a special word in ply's lexers.
 tokens = [
-    'LPAREN', 'RPAREN',  # Individual parentheses
-    'LBRACE', 'RBRACE',  # Individual braces
-    'OP_ADD', 'OP_SUB', 'OP_MUL', 'OP_DIV',  # the four basic arithmetic symbols
+    'LPAREN',
+    'RPAREN',  # Individual parentheses
+    'LBRACE',
+    'RBRACE',  # Individual braces
+    'OP_ADD',
+    'OP_SUB',
+    'OP_MUL',
+    'OP_DIV',  # the four basic arithmetic symbols
     'STRING',  # Anything enclosed by double quotes
     'ASSIGN',  # The two characters :=
     'NUMBER',  # An arbitrary number of digits
@@ -38,11 +43,7 @@ def t_ID(t):
 t_ignore = r'[ ]+'
 
 # Rule for IDs and reserved keywords. Section 4.3 has an example.
-reserved = {
-    'input': 'INPUT',
-    'output': 'OUTPUT',
-    'import': 'IMPORT'
-}
+reserved = {'input': 'INPUT', 'output': 'OUTPUT', 'import': 'IMPORT'}
 
 # Ignore comments. Comments in PyPE are just like in Python. Section 4.5.
 

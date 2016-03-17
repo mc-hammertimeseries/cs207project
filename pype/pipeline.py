@@ -5,7 +5,6 @@ from .semantic_analysis import CheckSingleAssignment
 
 
 class Pipeline(object):
-
     def __init__(self, source):
         self.compile(f)
 
