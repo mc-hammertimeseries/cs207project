@@ -23,7 +23,6 @@ class ASTNode(object):
 
     def pprint(self, indent=''):
         '''Recursively prints a formatted string representation of the AST.'''
-        # TODO
         print(indent + self.__class__.__name__)
         for child in self._children:
             child.pprint("   ")
@@ -35,7 +34,6 @@ class ASTNode(object):
         any children, children will be visited in order, and (by extension) a node's
         children will all be visited before its siblings.
         The visitor may modify attributes, but may not add or delete nodes.'''
-        # TODO
         visitor.visit(self)
         for child in self._children:
             child.walk(visitor)
@@ -58,19 +56,27 @@ class ASTImport(ASTNode):
         return self.mod
 
 
-class ASTComponent(ASTNode):  # TODO
+class ASTComponent(ASTNode):
+
+    def __init__(self, name, statements):
+        super().__init__()
+        self._name = name
+        self.children = statements
 
     @property
-    def name(self):  # TODO return an element of self.children
-        pass
+    def name(self):
+        return self._name
 
     @property
-    def expressions(self):  # TODO return one or more children
-        pass
+    def expressions(self):
+        return self.children
 
 
-class ASTInputExpr(ASTNode):  # TODO
-    pass
+class ASTInputExpr(ASTNode):
+
+    def __init__(self, declarations):
+        super().__init__()
+        self.children = declarations
 
 
 class ASTOutputExpr(ASTNode):  # TODO

@@ -1,7 +1,7 @@
 import ply.yacc
 
-from lexer import tokens, reserved
-from ast import *
+from .lexer import tokens, reserved
+from .ast import *
 
 # Here's an example production rule which constructs an AST node
 def p_program(p):
@@ -26,7 +26,7 @@ def p_import_statement(p):
 
 def p_component(p):
     r'''component : LBRACE ID expression_list RBRACE'''
-    p[0] = ASTComponent(p[3])
+    p[0] = ASTComponent(p[2], p[3])
 
 def p_expression_list(p):
     r'''expression_list : expression_list expression
@@ -37,14 +37,13 @@ def p_expression_list(p):
         expressions.append(expression)  # This should append ASTNodes from line ^
     p[0] = expressions
 
-def p_expression(p):
+def p_input_expression(p):
     r'''expression : LPAREN INPUT declaration_list RPAREN
                  | LPAREN INPUT RPAREN'''
-    input_expression = ASTInputExpr(p[2])
-    p[0] = [input_expression]
-    if hasattr(p[3], __len__):
-        p_delcarations_list(p[3])  # TODO: write that function
-        p[0].append(p[3])
+    if len(p) == 5:
+        p[0] = ASTInputExpr(p[3])
+    else:
+        p[0] = ASTInputExpr([])
 
     # TODO
     r'''expression : LPAREN OUTPUT declaration_list RPAREN
