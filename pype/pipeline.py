@@ -14,8 +14,12 @@ class Pipeline(object):
         # Lexing, parsing, AST construction
         ast = parser.parse(input, lexer=lexer)
         # Semantic analysis
-        #ast.walk( CheckSingleAssignment() )
+        # This just checks if something in a component is assigned twice
+        ast.walk( CheckSingleAssignment() )
+        # Get output similar to samples/example0.ast
+        ast.pprint('')
         # Translation
         syms = ast.walk( SymbolTableVisitor() )
+        # Get output similar to samples/example0.symtab
         syms.pprint()
         return syms
