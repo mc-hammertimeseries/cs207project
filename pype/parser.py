@@ -132,7 +132,8 @@ def p_parameter_list(p):
 
 
 def p_error(p):
-    pass
+    print("Syntax error at line " + str(p.lineno) + ": " + p.value)
+    quit()
 
 
 start = 'program'
