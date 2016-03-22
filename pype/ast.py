@@ -1,9 +1,9 @@
 class ASTVisitor():
-
     def visit(self, astnode):
         'A read-only function which looks at a single AST node.'
         pass
-
+    def return_value(self):
+        return None
 
 class ASTNode(object):
 
@@ -37,6 +37,7 @@ class ASTNode(object):
         visitor.visit(self)
         for child in self._children:
             child.walk(visitor)
+        return visitor.return_value()
 
 
 class ASTProgram(ASTNode):

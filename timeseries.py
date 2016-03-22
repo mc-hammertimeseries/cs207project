@@ -5,6 +5,7 @@ from lazy import *
 import operator as op
 import numbers
 import math
+import pype
 
 
 class TimeSeries:
@@ -65,10 +66,12 @@ class TimeSeries:
     >>> thunk.eval()
     True
 
-    # Mean and median
+    # Mean, std and median
     >>> x = TimeSeries([1, 2, 3, 4],[1, 4, 9, 16])
     >>> x.mean()
     7.5
+    >>> x.std()
+    5.6789083458002736
     >>> x.median()
     6.5
     >>> x = TimeSeries([],[])
@@ -191,11 +194,18 @@ class TimeSeries:
 
         return TimeSeries(new_times, new_values)
 
+    @pype.lib_import.component
     def mean(self):
         if (len(self._values) == 0):
             raise ValueError("can't take mean of empty list")
         return self._values.mean()
-
+    
+    @pype.lib_import.component
+    def std(self):
+        if (len(self._values) == 0):
+            raise ValueError("can't take std of empty list")
+        return self._values.std()
+    
     def median(self):
         if (len(self._values) == 0):
             raise ValueError("can't take median of empty list")
