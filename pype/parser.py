@@ -26,16 +26,16 @@ def p_import_statement(p):
 
 def p_component(p):
     r'''component : LBRACE ID expression_list RBRACE'''
-    p[0] = ASTComponent(p[2], p[3])
+    p[0] = ASTComponent(ASTID(p[2]), p[3])
 
 def p_expression_list(p):
     r'''expression_list : expression_list expression
                       | expression'''
-    expressions = []
-    for expression in p[1]:
-        p_expression(expression)  # DO I NEED TO DO THIS OR IS IT AUTOMATIC?
-        expressions.append(expression)  # This should append ASTNodes from line ^
-    p[0] = expressions
+    if len(p) > 2:
+        p[1].append(p[2])
+        p[0] = p[1]
+    else:
+        p[0] = [p[1]]
 
 def p_input_expression(p):
     r'''expression : LPAREN INPUT declaration_list RPAREN
@@ -45,39 +45,83 @@ def p_input_expression(p):
     else:
         p[0] = ASTInputExpr([])
 
-    # TODO
+def p_output_expression(p):
     r'''expression : LPAREN OUTPUT declaration_list RPAREN
                  | LPAREN OUTPUT RPAREN'''
-    # TODO
+    if len(p) == 5:
+        p[0] = ASTOutputExpr(p[3])
+    else:
+        p[0] = ASTOutputExpr([])
+    
+def p_declaration_list(p):
     r'''declaration_list : declaration_list declaration
                        | declaration'''
-    # TODO
+    if len(p) > 2:
+        p[1].append(p[2])
+        p[0] = p[1]
+    else:
+        p[0] = [p[1]]
+
+def p_declaration(p):
     r'''declaration : LPAREN type ID RPAREN
                   | ID'''
-    # TODO
+    if len(p) == 5:
+        p[0] = ASTID(p[3], p[2])
+    else:
+        p[0] = ASTID(p[1])
+    
+def p_type(p):
     r'''type : ID'''
-    # TODO
+    p[0] = ASTID(p[1])
+    
+def p_assign_expression(p):
     r'''expression : LPAREN ASSIGN ID expression RPAREN'''
-    # TODO
+    p[0] = ASTAssignmentExpr(ASTID(p[3]), p[4])
+    
+def p_parameter_list_expression(p):
     r'''expression : LPAREN ID parameter_list RPAREN
                  | LPAREN ID RPAREN'''
-    # TODO
+    if len(p) == 4:
+        p[0] = ASTEvalExpr(ASTID(p[2]))
+    else:
+        p[0] = ASTEvalExpr(ASTID(p[2]), p[3])
+        
+def p_add_expression(p):
     r'''expression : LPAREN OP_ADD parameter_list RPAREN'''
-    # TODO
+    p[0] = ASTEvalExpr(ASTID(p[2]), p[3])
+    
+def p_sub_expression(p):
     r'''expression : LPAREN OP_SUB parameter_list RPAREN'''
-    # TODO
+    p[0] = ASTEvalExpr(ASTID(p[2]), p[3])
+    
+def p_mul_expression(p):
     r'''expression : LPAREN OP_MUL parameter_list RPAREN'''
-    # TODO
+    p[0] = ASTEvalExpr(ASTID(p[2]), p[3])
+    
+def p_div_expression(p):
     r'''expression : LPAREN OP_DIV parameter_list RPAREN'''
-    # TODO
+    p[0] = ASTEvalExpr(ASTID(p[2]), p[3])
+    
+def p_id(p):
     r'''expression : ID'''
-    # TODO
+    p[0] = ASTID(p[1])
+    
+def p_number(p):
     r'''expression : NUMBER'''
-    # TODO
+    p[0] = ASTLiteral(p[1])
+    
+def p_string(p):
     r'''expression : STRING'''
-    # TODO
+    p[0] = ASTLiteral(p[1])
+    
+def p_parameter_list(p):
     r'''parameter_list : parameter_list expression
                      | expression'''
+    if len(p) > 2:
+        p[1].append(p[2])
+        p[0] = p[1]
+    else:
+        p[0] = [p[1]]
 
 # TODO: Write an error handling function. You should attempt to make the error
 #       message sensible. For instance, print out the line and column numbers to

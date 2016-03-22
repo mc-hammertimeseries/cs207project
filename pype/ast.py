@@ -25,7 +25,7 @@ class ASTNode(object):
         '''Recursively prints a formatted string representation of the AST.'''
         print(indent + self.__class__.__name__)
         for child in self._children:
-            child.pprint("   ")
+            child.pprint(indent + "  ")
 
     def walk(self, visitor):
         '''Traverses an AST, calling visitor.visit() on every node.
@@ -60,50 +60,54 @@ class ASTComponent(ASTNode):
 
     def __init__(self, name, statements):
         super().__init__()
-        self._name = name
-        self.children = statements
+        self.children = [name] + statements
 
     @property
     def name(self):
-        return self._name
+        return self.children[0]
 
     @property
     def expressions(self):
-        return self.children
+        return self.children[1:]
 
 
 class ASTInputExpr(ASTNode):
-
     def __init__(self, declarations):
         super().__init__()
         self.children = declarations
 
 
 class ASTOutputExpr(ASTNode):  # TODO
-    pass
+    def __init__(self, declarations):
+        super().__init__()
+        self.children = declarations
 
 
 class ASTAssignmentExpr(ASTNode):  # TODO
-    pass
+    def __init__(self, name, expression):
+        super().__init__()
+        self.children = [name] + [expression]
 
     @property
     def binding(self):  # TODO
-        pass
-
-    @property
-    def value(self):  # TODO
-        pass
-
-
-class ASTEvalExpr(ASTNode):  # TODO
-    pass
-
-    @property
-    def op(self):  # TODO
         return self.children[0]
 
     @property
-    def args(self):  # TODO
+    def value(self):  # TODO
+        return self.children[1:]
+
+
+class ASTEvalExpr(ASTNode):  # TODO
+    def __init__(self, op, parameters):
+        super().__init__()
+        self.children = [op] + parameters
+
+    @property
+    def op(self):
+        return self.children[0]
+
+    @property
+    def args(self):
         return self.children[1:]
 
 # These are already complete.
