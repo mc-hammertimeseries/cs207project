@@ -4,6 +4,7 @@ python:
 before_install:
     - pip install pytest pytest-cov
     - pip install coveralls
+    - pip install ply
 script:
     - py.test
 after_success:
