@@ -16,10 +16,10 @@ class Pipeline(object):
         # Semantic analysis
         # This just checks if something in a component is assigned twice
         ast.walk( CheckSingleAssignment() )
-        # Get output similar to samples/example0.ast
-        ast.pprint('')
         # Translation
         syms = ast.walk( SymbolTableVisitor() )
-        # Get output similar to samples/example0.symtab
-        syms.pprint()
+        # Uncomment for output similar to samples/example0.ast
+        # ast.pprint('')
+        # Uncomment for output similar to samples/example0.symtab
+        # syms.pprint()
         return syms
