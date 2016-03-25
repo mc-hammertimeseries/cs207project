@@ -32,3 +32,11 @@ class SymbolTable(object):
         if scope not in self.T:
             self.T[scope] = {}
         self.T[scope][sym[0]] = sym
+
+    def lookupsym(self, sym, scope=None):
+        if scope is not None:
+            if sym in self.T[scope]:
+                return self.T[scope][sym]
+        if sym in self.T['global']:
+            return self.T['global'][sym]
+        return None

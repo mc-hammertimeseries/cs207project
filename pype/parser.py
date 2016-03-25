@@ -86,21 +86,21 @@ def p_parameter_list_expression(p):
     else:
         p[0] = ASTEvalExpr(ASTID(p[2]), p[3])
         
-def p_add_expression(p):
-    r'''expression : LPAREN OP_ADD parameter_list RPAREN'''
-    p[0] = ASTEvalExpr(ASTID(p[2]), p[3])
-    
-def p_sub_expression(p):
-    r'''expression : LPAREN OP_SUB parameter_list RPAREN'''
-    p[0] = ASTEvalExpr(ASTID(p[2]), p[3])
-    
-def p_mul_expression(p):
-    r'''expression : LPAREN OP_MUL parameter_list RPAREN'''
-    p[0] = ASTEvalExpr(ASTID(p[2]), p[3])
-    
-def p_div_expression(p):
-    r'''expression : LPAREN OP_DIV parameter_list RPAREN'''
-    p[0] = ASTEvalExpr(ASTID(p[2]), p[3])
+def p_op_add_expression(p):
+  r'''expression : LPAREN OP_ADD parameter_list RPAREN'''
+  p[0] = ASTEvalExpr(ASTID(name='__add__'), p[3])
+
+def p_op_sub_expression(p):
+  r'''expression : LPAREN OP_SUB parameter_list RPAREN'''
+  p[0] = ASTEvalExpr(ASTID(name='__sub__'), p[3])
+
+def p_op_mul_expression(p):
+  r'''expression : LPAREN OP_MUL parameter_list RPAREN'''
+  p[0] = ASTEvalExpr(ASTID(name='__mul__'), p[3])
+
+def p_op_div_expression(p):
+  r'''expression : LPAREN OP_DIV parameter_list RPAREN'''
+  p[0] = ASTEvalExpr(ASTID(name='__truediv__'), p[3])
     
 def p_id(p):
     r'''expression : ID'''
@@ -123,9 +123,6 @@ def p_parameter_list(p):
     else:
         p[0] = [p[1]]
 
-# TODO: Write an error handling function. You should attempt to make the error
-#       message sensible. For instance, print out the line and column numbers to
-#       help find your error.
 # NOTE: You do NOT need to write production rules with error tokens in them.
 #       If you're interested, read section 6.8, but it requires a fairly deep
 #       understanding of LR parsers and the language specification.
