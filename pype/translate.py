@@ -117,40 +117,40 @@ class LoweringVisitor(ASTModVisitor):
             fg.set_var(node.binding.name, n.nodeid)
             return None
 
-    elif isinstance(node, ASTEvalExpr):
-        fg = self.ir[self.current_component]
-        op = self.symtab.lookupsym(node.op.name, scope=self.current_component)
-        if op is None:
-            raise PypeSyntaxError('Undefined operator: '+str(node.op.name))
-        if op.type==SymbolType.component:
-            n = fg.new_node(FGNodeType.component)
-        elif op.type==SymbolType.libraryfunction:
-            n = fg.new_node(FGNodeType.libraryfunction, ref=op.ref)
-        elif op.type==SymbolType.librarymethod:
-            n = fg.new_node(FGNodeType.librarymethod, ref=op.ref)
+        elif isinstance(node, ASTEvalExpr):
+            fg = self.ir[self.current_component]
+            op = self.symtab.lookupsym(node.op.name, scope=self.current_component)
+            if op is None:
+                raise PypeSyntaxError('Undefined operator: '+str(node.op.name))
+            if op.type==SymbolType.component:
+                n = fg.new_node(FGNodeType.component)
+            elif op.type==SymbolType.libraryfunction:
+                n = fg.new_node(FGNodeType.libraryfunction, ref=op.ref)
+            elif op.type==SymbolType.librarymethod:
+                n = fg.new_node(FGNodeType.librarymethod, ref=op.ref)
+            else:
+                raise PypeSyntaxError('Invalid operator of type "'+str(SymbolType)+'" in expression: '+str(node.op.name))
+
+            n.inputs = []
+            for child_v in child_values[1:]:
+                if isinstance(child_v, FGNode): # subexpressions or literals
+                    n.inputs.append(child_v.nodeid)
+                elif isinstance(child_v, ASTID): # variable lookup
+                    varname = child_v.name
+                    var_nodeid = fg.get_var(varname)
+                    if var_nodeid is None: # Use before declaration
+                        # The "unknown" type will be replaced later
+                        var_nodeid = fg.new_node(FGNodeType.unknown).nodeid
+                        fg.set_var(varname, var_nodeid)
+                    # Already declared in an assignment or input expression
+                    n.inputs.append(var_nodeid)
+            return n
+
+        elif isinstance(node, ASTLiteral):
+            fg = self.ir[self.current_component]
+            n = fg.new_node(FGNodeType.literal, ref=node.value)
+            return n
+
         else:
-            raise PypeSyntaxError('Invalid operator of type "'+str(SymbolType)+'" in expression: '+str(node.op.name))
-
-        n.inputs = []
-        for child_v in child_values[1:]:
-            if isinstance(child_v, FGNode): # subexpressions or literals
-            n.inputs.append(child_v.nodeid)
-            elif isinstance(child_v, ASTID): # variable lookup
-                varname = child_v.name
-                var_nodeid = fg.get_var(varname)
-                if var_nodeid is None: # Use before declaration
-                    # The "unknown" type will be replaced later
-                    var_nodeid = fg.new_node(FGNodeType.unknown).nodeid
-                    fg.set_var(varname, var_nodeid)
-                # Already declared in an assignment or input expression
-                n.inputs.append(var_nodeid)
-        return n
-
-    elif isinstance(node, ASTLiteral):
-        fg = self.ir[self.current_component]
-        n = fg.new_node(FGNodeType.literal, ref=node.value)
-        return n
-
-    else:
-      return visit_value
+          return visit_value
 

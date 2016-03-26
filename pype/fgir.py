@@ -85,7 +85,7 @@ class FGIR(object):
       if fg is not None:
         self.graphs[component] = fg
 
-  def node_pass(self, node_optimizer, *args, topological=False):
+  def node_pass(self, node_optimizer, topological=False, *args):
     for component in self.graphs:
       fg = self.graphs[component]
       if topological:
