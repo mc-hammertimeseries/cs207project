@@ -6,6 +6,6 @@ before_install:
     - pip install coveralls
     - pip install ply
 script:
-    - python setup.py test
+    - python -m pytest tests
 after_success:
     - coveralls
