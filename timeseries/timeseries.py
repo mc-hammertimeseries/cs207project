@@ -342,7 +342,3 @@ class TimeSeries:
 
     def __bool__(self):
         return bool(abs(self))
-
-if __name__ == '__main__':
-    import doctest  # Only import on running main, else not
-    doctest.run_docstring_examples(TimeSeries, globals(), verbose=True, name="TimeSeries")
