@@ -26,24 +26,25 @@ class TestPipeline(object):
         return syms, ast
 
 # Load each sample output into a list of strings
-with open ('samples/example0.ast') as f:
+with open ('tests/samples/example0.ast') as f:
     ast_example_0 = f.read()
 
-with open ('samples/example1.ast') as f:
+with open ('tests/samples/example1.ast') as f:
     ast_example_1 = f.read()
 
-test_0 = TestPipeline(source='samples/example0.ppl')
-test_1 = TestPipeline(source='samples/example1.ppl')
+def test_ast():
+    test_0 = TestPipeline(source='tests/samples/example0.ppl')
+    test_1 = TestPipeline(source='tests/samples/example1.ppl')
 
-# Redirect standard output to mystdout
-# Code taken from http://stackoverflow.com/a/1218951
-old_stdout = sys.stdout
-sys.stdout = mystdout = StringIO()
+    # Redirect standard output to mystdout
+    # Code taken from http://stackoverflow.com/a/1218951
+    old_stdout = sys.stdout
+    sys.stdout = mystdout = StringIO()
 
-# Test AST examples
-test_0.ast.pprint()
-assert mystdout.getvalue() == ast_example_0
-# Clear IO
-sys.stdout = mystdout = StringIO()
-test_1.ast.pprint()
-assert mystdout.getvalue() == ast_example_1
+    # Test AST examples
+    test_0.ast.pprint()
+    assert mystdout.getvalue() == ast_example_0
+    # Clear IO
+    sys.stdout = mystdout = StringIO()
+    test_1.ast.pprint()
+    assert mystdout.getvalue() == ast_example_1
