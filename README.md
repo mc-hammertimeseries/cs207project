@@ -1,4 +1,3 @@
-
 # CS207 TimeSeries Project
 
 [![Build Status](https://travis-ci.org/mc-hammertimeseries/cs207project.svg?branch=master)](https://travis-ci.org/mc-hammertimeseries/cs207project)
