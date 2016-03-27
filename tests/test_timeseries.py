@@ -1,4 +1,4 @@
-import timeseries.timeseries as ts
+from ..timeseries import timeseries as ts
 from pytest import raises
 
 

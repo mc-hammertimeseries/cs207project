@@ -1,11 +1,11 @@
 import itertools
 import reprlib
 import numpy as np
-from lazy import *
+from .lazy import *
 import operator as op
 import numbers
 import math
-import pype
+from .. import pype
 
 
 class TimeSeries:

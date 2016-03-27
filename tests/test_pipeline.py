@@ -1,14 +1,13 @@
 from pytest import raises
-import pype
+# from .. import pype
 import sys
 from io import StringIO
-import sys
 
-from pype.lexer import lexer
-from pype.parser import parser
-from pype.ast import *
-from pype.semantic_analysis import CheckSingleAssignment,PrettyPrint
-from pype.translate import SymbolTableVisitor
+from ..pype.lexer import lexer
+from ..pype.parser import parser
+from ..pype.ast import *
+from ..pype.semantic_analysis import CheckSingleAssignment,PrettyPrint
+from ..pype.translate import SymbolTableVisitor
 
 class TestPipeline(object):
     def __init__(self, source):
