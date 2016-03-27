@@ -69,7 +69,7 @@ class TimeSeries:
     # Mean, std and median
     >>> x = TimeSeries([1, 2, 3, 4],[1, 4, 9, 16])
     >>> x.mean()
-    7.0
+    7.5
     >>> x.std()
     5.6789083458002736
     >>> x.median()
