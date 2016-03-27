@@ -6,6 +6,6 @@ before_install:
     - pip install coveralls
     - pip install ply
 script:
-    - python -m pytest
+    - python -m pytest --doctest-modules --cov-report term-missing --cov . --ignore pype/driver.py
 after_success:
     - coveralls
