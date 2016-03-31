@@ -42,9 +42,6 @@ def t_ID(t):
 # Ignore whitespace.
 t_ignore = r'[ ]+'
 
-# Rule for IDs and reserved keywords. Section 4.3 has an example.
-reserved = {'input': 'INPUT', 'output': 'OUTPUT', 'import': 'IMPORT'}
-
 # Ignore comments. Comments in PyPE are just like in Python. Section 4.5.
 def t_COMMENT(t):
     r'\#.*'

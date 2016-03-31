@@ -199,13 +199,13 @@ class TimeSeries:
         if (len(self._values) == 0):
             raise ValueError("can't take mean of empty list")
         return self._values.mean()
-    
+
     @pype.lib_import.component
     def std(self):
         if (len(self._values) == 0):
             raise ValueError("can't take std of empty list")
         return self._values.std()
-    
+
     def median(self):
         if (len(self._values) == 0):
             raise ValueError("can't take median of empty list")

@@ -1,9 +1,12 @@
 class ASTVisitor():
+
     def visit(self, astnode):
         'A read-only function which looks at a single AST node.'
         pass
+
     def return_value(self):
         return None
+
 
 class ASTNode(object):
 
@@ -60,6 +63,7 @@ class ASTProgram(ASTNode):
 
 
 class ASTImport(ASTNode):
+
     def __init__(self, mod):
         super().__init__()
         self.mod = mod
@@ -85,18 +89,21 @@ class ASTComponent(ASTNode):
 
 
 class ASTInputExpr(ASTNode):
+
     def __init__(self, declarations):
         super().__init__()
         self.children = declarations
 
 
 class ASTOutputExpr(ASTNode):  # TODO
+
     def __init__(self, declarations):
         super().__init__()
         self.children = declarations
 
 
 class ASTAssignmentExpr(ASTNode):  # TODO
+
     def __init__(self, name, expression):
         super().__init__()
         self.children = [name] + [expression]
@@ -111,6 +118,7 @@ class ASTAssignmentExpr(ASTNode):  # TODO
 
 
 class ASTEvalExpr(ASTNode):  # TODO
+
     def __init__(self, op, parameters):
         super().__init__()
         self.children = [op] + parameters
@@ -122,6 +130,7 @@ class ASTEvalExpr(ASTNode):  # TODO
     @property
     def args(self):
         return self.children[1:]
+
 
 # These are already complete.
 class ASTID(ASTNode):
@@ -139,21 +148,22 @@ class ASTLiteral(ASTNode):
         self.value = value
         self.type = 'Scalar'
 
+
 class ASTModVisitor(ASTVisitor):
-  '''A visitor class that can also construct a new, modified AST.
+    '''A visitor class that can also construct a new, modified AST.
+      Two methods are offered: the normal visit() method, which focuses on analyzing
+      and/or modifying a single node; and the post_visit() method, which allows you
+      to modify the child list of a node.
+      The default implementation does nothing; it simply builds up itself, unmodified.'''
 
-  Two methods are offered: the normal visit() method, which focuses on analyzing
-  and/or modifying a single node; and the post_visit() method, which allows you
-  to modify the child list of a node.
-  The default implementation does nothing; it simply builds up itself, unmodified.'''
-  def visit(self, astnode):
-    # Note that this overrides the super's implementation, because we need a
-    # non-None return value.
-    return astnode
-  def post_visit(self, visit_value, child_values):
-    '''A function which constructs a return value out of its children.
+    def visit(self, astnode):
+        # Note that this overrides the super's implementation, because we need a
+        # non-None return value.
+        return astnode
 
-    This can be used to modify an AST by returning a different or modified
-    ASTNode than the original. The top-level return value will then be the
-    new AST.'''
-    return visit_value
+    def post_visit(self, visit_value, child_values):
+        '''A function which constructs a return value out of its children.
+        This can be used to modify an AST by returning a different or modified
+        ASTNode than the original. The top-level return value will then be the
+        new AST.'''
+        return visit_value

@@ -4,7 +4,9 @@ from .lib_import import LibraryImporter
 from .fgir import FGNodeType, FGNode, Flowgraph, FGIR
 from .error import *
 
+
 class SymbolTableVisitor(ASTVisitor):
+
     def __init__(self):
         self.symbol_table = SymbolTable()
         self._current_component = None
@@ -42,14 +44,18 @@ class SymbolTableVisitor(ASTVisitor):
                 raise ValueError("Trying to assign a variable twice: " + node.binding.name)
             else:
                 self._component_dict[self._current_component].add(node.binding.name)
-                self.symbol_table.addsym(Symbol(node.binding.name, SymbolType.var, None), self._current_component)
+                self.symbol_table.addsym(
+                    Symbol(node.binding.name, SymbolType.var, None), self._current_component)
         if isinstance(node, ASTInputExpr):
             for declaration in node.children:
-                self.symbol_table.addsym(Symbol(declaration.name, SymbolType.input, None), self._current_component)
+                self.symbol_table.addsym(
+                    Symbol(declaration.name, SymbolType.input, None), self._current_component)
+
 
 class LoweringVisitor(ASTModVisitor):
     'Produces FGIR from an AST.'
-    def __init__(self,symtab):
+
+    def __init__(self, symtab):
         self.symtab = symtab
         self.ir = FGIR()
         self.current_component = None
@@ -70,11 +76,11 @@ class LoweringVisitor(ASTModVisitor):
             for child_v in child_values:
                 varname = child_v.name
                 var_nodeid = fg.get_var(varname)
-                if var_nodeid is None: # No use yet, declare it.
+                if var_nodeid is None:  # No use yet, declare it.
                     var_nodeid = fg.new_node(FGNodeType.input).nodeid
-                else: # use before declaration
+                else:  # use before declaration
                     fg.nodes[var_nodeid].type = FGNodeType.input
-                fg.set_var(varname,var_nodeid)
+                fg.set_var(varname, var_nodeid)
                 fg.add_input(var_nodeid)
             return None
 
@@ -84,7 +90,7 @@ class LoweringVisitor(ASTModVisitor):
                 n = fg.new_node(FGNodeType.output)
                 varname = child_v.name
                 var_nodeid = fg.get_var(varname)
-                if var_nodeid is None: # Use before declaration
+                if var_nodeid is None:  # Use before declaration
                     # The "unknown" type will be replaced later
                     var_nodeid = fg.new_node(FGNodeType.unknown).nodeid
                     fg.set_var(varname, var_nodeid)
@@ -97,18 +103,18 @@ class LoweringVisitor(ASTModVisitor):
             fg = self.ir[self.current_component]
             # If a variable use precedes its declaration, a stub will be in this table
             stub_nodeid = fg.get_var(node.binding.name)
-            if stub_nodeid is not None: # Modify the existing stub
+            if stub_nodeid is not None:  # Modify the existing stub
                 n = fg.nodes[stub_nodeid]
                 n.type = FGNodeType.assignment
-            else: # Create a new node
+            else:  # Create a new node
                 n = fg.new_node(FGNodeType.assignment)
             child_v = child_values[1]
-            if isinstance(child_v, FGNode): # subexpressions or literals
+            if isinstance(child_v, FGNode):  # subexpressions or literals
                 n.inputs.append(child_v.nodeid)
-            elif isinstance(child_v, ASTID): # variable lookup
+            elif isinstance(child_v, ASTID):  # variable lookup
                 varname = child_v.name
                 var_nodeid = fg.get_var(varname)
-                if var_nodeid is None: # Use before declaration
+                if var_nodeid is None:  # Use before declaration
                     # The "unknown" type will be replaced later
                     var_nodeid = fg.new_node(FGNodeType.unknown).nodeid
                     fg.set_var(varname, var_nodeid)
@@ -121,24 +127,25 @@ class LoweringVisitor(ASTModVisitor):
             fg = self.ir[self.current_component]
             op = self.symtab.lookupsym(node.op.name, scope=self.current_component)
             if op is None:
-                raise PypeSyntaxError('Undefined operator: '+str(node.op.name))
-            if op.type==SymbolType.component:
+                raise PypeSyntaxError('Undefined operator: ' + str(node.op.name))
+            if op.type == SymbolType.component:
                 n = fg.new_node(FGNodeType.component)
-            elif op.type==SymbolType.libraryfunction:
+            elif op.type == SymbolType.libraryfunction:
                 n = fg.new_node(FGNodeType.libraryfunction, ref=op.ref)
-            elif op.type==SymbolType.librarymethod:
+            elif op.type == SymbolType.librarymethod:
                 n = fg.new_node(FGNodeType.librarymethod, ref=op.ref)
             else:
-                raise PypeSyntaxError('Invalid operator of type "'+str(SymbolType)+'" in expression: '+str(node.op.name))
+                raise PypeSyntaxError('Invalid operator of type "' +
+                                      str(SymbolType) + '" in expression: ' + str(node.op.name))
 
             n.inputs = []
             for child_v in child_values[1:]:
-                if isinstance(child_v, FGNode): # subexpressions or literals
+                if isinstance(child_v, FGNode):  # subexpressions or literals
                     n.inputs.append(child_v.nodeid)
-                elif isinstance(child_v, ASTID): # variable lookup
+                elif isinstance(child_v, ASTID):  # variable lookup
                     varname = child_v.name
                     var_nodeid = fg.get_var(varname)
-                    if var_nodeid is None: # Use before declaration
+                    if var_nodeid is None:  # Use before declaration
                         # The "unknown" type will be replaced later
                         var_nodeid = fg.new_node(FGNodeType.unknown).nodeid
                         fg.set_var(varname, var_nodeid)
@@ -152,5 +159,4 @@ class LoweringVisitor(ASTModVisitor):
             return n
 
         else:
-          return visit_value
-
+            return visit_value
