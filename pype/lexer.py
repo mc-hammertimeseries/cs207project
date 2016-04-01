@@ -40,7 +40,7 @@ def t_ID(t):
     return t
 
 # Ignore whitespace.
-t_ignore = r'[ ]+'
+t_ignore = ' \t'
 
 # Ignore comments. Comments in PyPE are just like in Python. Section 4.5.
 def t_COMMENT(t):
