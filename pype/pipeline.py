@@ -3,6 +3,7 @@ from .parser import parser
 from .ast import *
 from .semantic_analysis import CheckSingleAssignment, CheckSingleIOExpression, CheckUndefinedVariables
 from .translate import SymbolTableVisitor, LoweringVisitor
+from .optimize import AssignmentEllision, DeadCodeElimination
 
 
 class Pipeline(object):
@@ -29,5 +30,7 @@ class Pipeline(object):
         # Optimization
         ir.flowgraph_pass(AssignmentEllision())
         ir.flowgraph_pass(DeadCodeElimination())
+        for f in ir.graphs.values():
+            print(f.dotfile())
 
         return ir

@@ -5,73 +5,55 @@ _tabversion = '3.8'
 
 _lr_method = 'LALR'
 
-_lr_signature = '8B184828847846774CD153CEF0204C26'
-
-_lr_action_items = {'RPAREN': ([11, 12, 16, 17, 23, 26, 27, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 55, 56, 57, 58, ], [-27, -26, -28, 28, 33, 37, 42, -30, 45, 47, -21, 48, 49, 50, -11, -17, 51, -15, -13, 55, 56, -23, -29, -24, -20, -25, -22, -10, -14, -12, -19, 58, -16, ]), 'ASSIGN': ([14, ], [20, ]), '$end': ([1, 2, 3, 5, 7, 8, 18, 28, ], [0, -1, -5, -4, -2, -3, -7, -6, ]), 'OP_SUB': ([14, ], [21, ]), 'OP_MUL': ([14, ], [22, ]), 'ID': ([4, 9, 10, 11, 12, 13, 14, 15, 16, 19, 20, 21, 22, 23, 24, 25, 26, 27, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 58, ], [9, 12, 17, -27, -26, 12, 23, -9, -28, -8, 29, 12, 12, 12, 12, 12, 38, 38, 12, -30, 12, 12, -21, 12, 12, 12, -11, -17, 38, -15, 53, -13, 38, -23, -29, -24, -20, -25, -22, -10, -14, -18, 57, -12, -19, -16, ]), 'RBRACE': ([11, 12, 13, 15, 16, 19, 33, 37, 42, 45, 47, 48, 49, 50, 51, 55, 56, ], [-27, -26, 18, -9, -28, -8, -21, -11, -13, -23, -24, -20, -25, -22, -10, -12, -19, ]), 'LPAREN': ([0, 2, 3, 5, 7, 8, 9, 11, 12, 13, 15, 16, 18, 19, 21, 22,
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 42, 43, 45, 46, 47, 48, 49, 50, 51, 52, 55, 56, 58, ], [6, 6, -5, -4, -2, -3, 14, -27, -26, 14, -9, -28, -7, -8, 14, 14, 14, 14, 14, 41, 41, -6, 14, -30, 14, 14, -21, 14, 14, 14, -11, -17, 41, -15, -13, 41, -23, -29, -24, -20, -25, -22, -10, -14, -12, -19, -16, ]), 'NUMBER': ([9, 11, 12, 13, 15, 16, 19, 21, 22, 23, 24, 25, 29, 30, 31, 32, 33, 34, 35, 36, 37, 42, 45, 46, 47, 48, 49, 50, 51, 55, 56, ], [11, -27, -26, 11, -9, -28, -8, 11, 11, 11, 11, 11, 11, -30, 11, 11, -21, 11, 11, 11, -11, -13, -23, -29, -24, -20, -25, -22, -10, -12, -19, ]), 'OP_ADD': ([14, ], [25, ]), 'OP_DIV': ([14, ], [24, ]), 'LBRACE': ([0, 2, 3, 5, 7, 8, 18, 28, ], [4, 4, -5, -4, -2, -3, -7, -6, ]), 'INPUT': ([14, ], [26, ]), 'OUTPUT': ([14, ], [27, ]), 'IMPORT': ([6, ], [10, ]), 'STRING': ([9, 11, 12, 13, 15, 16, 19, 21, 22, 23, 24, 25, 29, 30, 31, 32, 33, 34, 35, 36, 37, 42, 45, 46, 47, 48, 49, 50, 51, 55, 56, ], [16, -27, -26, 16, -9, -28, -8, 16, 16, 16, 16, 16, 16, -30, 16, 16, -21, 16, 16, 16, -11, -13, -23, -29, -24, -20, -25, -22, -10, -12, -19, ]), }
+_lr_signature = 'EFB8CF1353CF3C09DEAB2CE24795587E'
+    
+_lr_action_items = {'OP_SUB':([12,],[19,]),'LPAREN':([0,1,3,4,7,8,10,13,14,15,16,17,18,19,20,21,22,23,24,26,27,28,29,30,31,32,33,34,36,37,38,39,40,41,42,43,44,45,46,47,48,51,52,53,55,57,58,],[5,-4,-5,5,-3,-2,12,-9,-28,-26,-27,12,-6,12,12,12,12,35,35,12,-8,-7,12,-30,12,12,12,-21,-15,35,-13,-17,35,-11,12,12,-23,-29,-24,-25,-20,-14,-12,-10,-22,-19,-16,]),'ID':([6,9,10,12,13,14,15,16,17,19,20,21,22,23,24,25,26,27,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,55,57,58,],[10,11,15,22,-9,-28,-26,-27,15,15,15,15,15,39,39,42,15,-8,15,-30,15,15,15,-21,50,-15,39,-13,-17,39,-11,15,15,-23,-29,-24,-25,-20,56,-18,-14,-12,-10,-22,-19,-16,]),'IMPORT':([5,],[9,]),'RPAREN':([11,14,15,16,22,23,24,29,30,31,32,33,34,36,37,38,39,40,41,43,44,45,46,47,48,51,52,53,54,55,56,57,58,],[18,-28,-26,-27,34,38,41,44,-30,46,47,48,-21,-15,52,-13,-17,53,-11,55,-23,-29,-24,-25,-20,-14,-12,-10,57,-22,58,-19,-16,]),'OP_MUL':([12,],[20,]),'OP_DIV':([12,],[21,]),'OP_ADD':([12,],[26,]),'INPUT':([12,],[24,]),'OUTPUT':([12,],[23,]),'STRING':([10,13,14,15,16,17,19,20,21,22,26,27,29,30,31,32,33,34,38,41,42,43,44,45,46,47,48,52,53,55,57,],[14,-9,-28,-26,-27,14,14,14,14,14,14,-8,14,-30,14,14,14,-21,-13,-11,14,14,-23,-29,-24,-25,-20,-12,-10,-22,-19,]),'NUMBER':([10,13,14,15,16,17,19,20,21,22,26,27,29,30,31,32,33,34,38,41,42,43,44,45,46,47,48,52,53,55,57,],[16,-9,-28,-26,-27,16,16,16,16,16,16,-8,16,-30,16,16,16,-21,-13,-11,16,16,-23,-29,-24,-25,-20,-12,-10,-22,-19,]),'RBRACE':([13,14,15,16,17,27,34,38,41,44,46,47,48,52,53,55,57,],[-9,-28,-26,-27,28,-8,-21,-13,-11,-23,-24,-25,-20,-12,-10,-22,-19,]),'ASSIGN':([12,],[25,]),'LBRACE':([0,1,3,4,7,8,18,28,],[6,-4,-5,6,-3,-2,-6,-7,]),'$end':([1,2,3,4,7,8,18,28,],[-4,0,-5,-1,-3,-2,-6,-7,]),}
 
 _lr_action = {}
 for _k, _v in _lr_action_items.items():
-    for _x, _y in zip(_v[0], _v[1]):
-        if not _x in _lr_action:
-            _lr_action[_x] = {}
-        _lr_action[_x][_k] = _y
+   for _x,_y in zip(_v[0],_v[1]):
+      if not _x in _lr_action:  _lr_action[_x] = {}
+      _lr_action[_x][_k] = _y
 del _lr_action_items
 
-_lr_goto_items = {'program': ([0, ], [1, ]), 'expression': ([9, 13, 21, 22, 23, 24, 25, 29, 31, 32, 34, 35, 36, ], [15, 19, 30, 30, 30, 30, 30, 44, 46, 46, 46, 46, 46, ]), 'declaration': ([26, 27, 39, 43, ], [40, 40, 52, 52, ]), 'statement_list': ([0, ], [
-    2, ]), 'component': ([0, 2, ], [3, 7, ]), 'type': ([41, ], [54, ]), 'parameter_list': ([21, 22, 23, 24, 25, ], [31, 32, 34, 35, 36, ]), 'expression_list': ([9, ], [13, ]), 'declaration_list': ([26, 27, ], [39, 43, ]), 'import_statement': ([0, 2, ], [5, 8, ]), }
+_lr_goto_items = {'import_statement':([0,4,],[1,7,]),'program':([0,],[2,]),'component':([0,4,],[3,8,]),'statement_list':([0,],[4,]),'declaration_list':([23,24,],[37,40,]),'parameter_list':([19,20,21,22,26,],[29,31,32,33,43,]),'declaration':([23,24,37,40,],[36,36,51,51,]),'type':([35,],[49,]),'expression':([10,17,19,20,21,22,26,29,31,32,33,42,43,],[13,27,30,30,30,30,30,45,45,45,45,54,45,]),'expression_list':([10,],[17,]),}
 
 _lr_goto = {}
 for _k, _v in _lr_goto_items.items():
-    for _x, _y in zip(_v[0], _v[1]):
-        if not _x in _lr_goto:
-            _lr_goto[_x] = {}
-        _lr_goto[_x][_k] = _y
+   for _x, _y in zip(_v[0], _v[1]):
+       if not _x in _lr_goto: _lr_goto[_x] = {}
+       _lr_goto[_x][_k] = _y
 del _lr_goto_items
 _lr_productions = [
-    ("S' -> program", "S'", 1, None, None, None),
-    ('program -> statement_list', 'program', 1, 'p_program', 'parser.py', 8),
-    ('statement_list -> statement_list component',
-     'statement_list', 2, 'p_statement_list', 'parser.py', 13),
-    ('statement_list -> statement_list import_statement',
-        'statement_list', 2, 'p_statement_list', 'parser.py', 14),
-    ('statement_list -> import_statement', 'statement_list', 1, 'p_statement_list', 'parser.py', 15),
-    ('statement_list -> component', 'statement_list', 1, 'p_statement_list', 'parser.py', 16),
-    ('import_statement -> LPAREN IMPORT ID RPAREN',
-        'import_statement', 4, 'p_import_statement', 'parser.py', 24),
-    ('component -> LBRACE ID expression_list RBRACE', 'component', 4, 'p_component', 'parser.py', 28),
-    ('expression_list -> expression_list expression',
-        'expression_list', 2, 'p_expression_list', 'parser.py', 32),
-    ('expression_list -> expression', 'expression_list', 1, 'p_expression_list', 'parser.py', 33),
-    ('expression -> LPAREN INPUT declaration_list RPAREN',
-        'expression', 4, 'p_input_expression', 'parser.py', 41),
-    ('expression -> LPAREN INPUT RPAREN', 'expression', 3, 'p_input_expression', 'parser.py', 42),
-    ('expression -> LPAREN OUTPUT declaration_list RPAREN',
-        'expression', 4, 'p_output_expression', 'parser.py', 49),
-    ('expression -> LPAREN OUTPUT RPAREN', 'expression', 3, 'p_output_expression', 'parser.py', 50),
-    ('declaration_list -> declaration_list declaration',
-        'declaration_list', 2, 'p_declaration_list', 'parser.py', 57),
-    ('declaration_list -> declaration', 'declaration_list', 1, 'p_declaration_list', 'parser.py', 58),
-    ('declaration -> LPAREN type ID RPAREN', 'declaration', 4, 'p_declaration', 'parser.py', 66),
-    ('declaration -> ID', 'declaration', 1, 'p_declaration', 'parser.py', 67),
-    ('type -> ID', 'type', 1, 'p_type', 'parser.py', 74),
-    ('expression -> LPAREN ASSIGN ID expression RPAREN',
-        'expression', 5, 'p_assign_expression', 'parser.py', 78),
-    ('expression -> LPAREN ID parameter_list RPAREN', 'expression',
-        4, 'p_parameter_list_expression', 'parser.py', 82),
-    ('expression -> LPAREN ID RPAREN', 'expression', 3, 'p_parameter_list_expression', 'parser.py', 83),
-    ('expression -> LPAREN OP_ADD parameter_list RPAREN',
-        'expression', 4, 'p_op_add_expression', 'parser.py', 90),
-    ('expression -> LPAREN OP_SUB parameter_list RPAREN',
-        'expression', 4, 'p_op_sub_expression', 'parser.py', 94),
-    ('expression -> LPAREN OP_MUL parameter_list RPAREN',
-        'expression', 4, 'p_op_mul_expression', 'parser.py', 98),
-    ('expression -> LPAREN OP_DIV parameter_list RPAREN',
-        'expression', 4, 'p_op_div_expression', 'parser.py', 102),
-    ('expression -> ID', 'expression', 1, 'p_id', 'parser.py', 106),
-    ('expression -> NUMBER', 'expression', 1, 'p_number', 'parser.py', 110),
-    ('expression -> STRING', 'expression', 1, 'p_string', 'parser.py', 114),
-    ('parameter_list -> parameter_list expression',
-        'parameter_list', 2, 'p_parameter_list', 'parser.py', 118),
-    ('parameter_list -> expression', 'parameter_list', 1, 'p_parameter_list', 'parser.py', 119),
+  ("S' -> program","S'",1,None,None,None),
+  ('program -> statement_list','program',1,'p_program','parser.py',10),
+  ('statement_list -> statement_list component','statement_list',2,'p_statement_list','parser.py',17),
+  ('statement_list -> statement_list import_statement','statement_list',2,'p_statement_list','parser.py',18),
+  ('statement_list -> import_statement','statement_list',1,'p_statement_list','parser.py',19),
+  ('statement_list -> component','statement_list',1,'p_statement_list','parser.py',20),
+  ('import_statement -> LPAREN IMPORT ID RPAREN','import_statement',4,'p_import_statement','parser.py',29),
+  ('component -> LBRACE ID expression_list RBRACE','component',4,'p_component','parser.py',34),
+  ('expression_list -> expression_list expression','expression_list',2,'p_expression_list','parser.py',39),
+  ('expression_list -> expression','expression_list',1,'p_expression_list','parser.py',40),
+  ('expression -> LPAREN INPUT declaration_list RPAREN','expression',4,'p_input_expression','parser.py',49),
+  ('expression -> LPAREN INPUT RPAREN','expression',3,'p_input_expression','parser.py',50),
+  ('expression -> LPAREN OUTPUT declaration_list RPAREN','expression',4,'p_output_expression','parser.py',58),
+  ('expression -> LPAREN OUTPUT RPAREN','expression',3,'p_output_expression','parser.py',59),
+  ('declaration_list -> declaration_list declaration','declaration_list',2,'p_declaration_list','parser.py',67),
+  ('declaration_list -> declaration','declaration_list',1,'p_declaration_list','parser.py',68),
+  ('declaration -> LPAREN type ID RPAREN','declaration',4,'p_declaration','parser.py',77),
+  ('declaration -> ID','declaration',1,'p_declaration','parser.py',78),
+  ('type -> ID','type',1,'p_type','parser.py',86),
+  ('expression -> LPAREN ASSIGN ID expression RPAREN','expression',5,'p_assign_expression','parser.py',91),
+  ('expression -> LPAREN ID parameter_list RPAREN','expression',4,'p_parameter_list_expression','parser.py',96),
+  ('expression -> LPAREN ID RPAREN','expression',3,'p_parameter_list_expression','parser.py',97),
+  ('expression -> LPAREN OP_ADD parameter_list RPAREN','expression',4,'p_op_add_expression','parser.py',105),
+  ('expression -> LPAREN OP_SUB parameter_list RPAREN','expression',4,'p_op_sub_expression','parser.py',110),
+  ('expression -> LPAREN OP_MUL parameter_list RPAREN','expression',4,'p_op_mul_expression','parser.py',115),
+  ('expression -> LPAREN OP_DIV parameter_list RPAREN','expression',4,'p_op_div_expression','parser.py',120),
+  ('expression -> ID','expression',1,'p_id','parser.py',125),
+  ('expression -> NUMBER','expression',1,'p_number','parser.py',130),
+  ('expression -> STRING','expression',1,'p_string','parser.py',135),
+  ('parameter_list -> parameter_list expression','parameter_list',2,'p_parameter_list','parser.py',140),
+  ('parameter_list -> expression','parameter_list',1,'p_parameter_list','parser.py',141),
 ]

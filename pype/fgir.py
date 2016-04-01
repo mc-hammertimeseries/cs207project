@@ -67,8 +67,24 @@ class Flowgraph(object):
         return [i for (i, n) in self.nodes.items() if nodeid in self.nodes[i].inputs]
 
     def topological_sort(self):
-        # TODO : implement a topological sort
-        return []  # should return a list of node ids in sorted order
+        # Helper function
+        def visit(nodeid):
+            if len(self.nodes[nodeid].inputs) == 0:
+                return [nodeid]
+            else:
+                ret_list = []
+                for n in self.pre(nodeid):
+                    ret_list += visit(n)
+                return ret_list + [nodeid]
+        sorted_list = []
+        for nodeid in self.outputs:
+            sorted_list += visit(nodeid)
+
+        final = []
+        for node in sorted_list:
+            if node not in final:
+                final.append(node)
+        return final # should return a list of node ids in sorted order
 
 
 class FGIR(object):

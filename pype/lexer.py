@@ -3,7 +3,7 @@ import ply.lex
 reserved = {  # pattern : token-name
     'input': 'INPUT',
     'output': 'OUTPUT',
-    'import': 'IMPORT',
+    'import': 'IMPORT'
 }
 # 'tokens' is a special word in ply's lexers.
 tokens = [
@@ -18,14 +18,14 @@ tokens = [
     'STRING',  # Anything enclosed by double quotes
     'ASSIGN',  # The two characters :=
     'NUMBER',  # An arbitrary number of digits
-    'ID',  # a sequence of letters, numbers, and underscores. Must not start with a number.
+    'ID'  # a sequence of letters, numbers, and underscores. Must not start with a number.
 ] + list(reserved.values())
 
 t_LPAREN = r'\('
 t_RPAREN = r'\)'
 t_LBRACE = r'\{'
 t_RBRACE = r'\}'
-t_OP_ADD = r'\+'
+t_OP_ADD = r'\+' 
 t_OP_SUB = r'\-'
 t_OP_MUL = r'\*'
 t_OP_DIV = r'\/'

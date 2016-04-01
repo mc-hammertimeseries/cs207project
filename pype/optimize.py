@@ -46,7 +46,20 @@ class AssignmentEllision(FlowgraphOptimization):
     their pre- and post-dependencies.'''
 
     def visit(self, flowgraph):
-        # TODO: implement this
+        nodeids = flowgraph.topological_sort()
+        print(nodeids)
+        for nodeid in nodeids:
+            node = flowgraph.nodes[nodeid]
+            if node.type == FGNodeType.assignment:
+                inputs = flowgraph.pre(nodeid)
+                outputs = flowgraph.post(nodeid)
+                for outputid in outputs:
+                    output_node = flowgraph.nodes[outputid]
+                    output_node.inputs.remove(nodeid)
+                    output_node.inputs.extend(inputs)
+                for name, node_id in flowgraph.variables.items():
+                    if node_id == nodeid:
+                        flowgraph.variables[name] = inputs[0]
         return flowgraph
 
 
@@ -65,5 +78,14 @@ class DeadCodeElimination(FlowgraphOptimization):
     this instance, component1 will end up unmodified after DCE.'''
 
     def visit(self, flowgraph):
-        # TODO: implement this
+        nodeids = set(flowgraph.topological_sort() + flowgraph.inputs)
+        all_nodes = set(flowgraph.nodes.keys())
+        nodes_to_remove = all_nodes - nodeids
+        for node_id in nodes_to_remove:
+            del flowgraph.nodes[node_id]
+        new_variables = {}
+        for name, node_id in flowgraph.variables.items():
+            if node_id not in nodes_to_remove:
+                new_variables[name] = node_id
+        flowgraph.variables = new_variables
         return flowgraph
