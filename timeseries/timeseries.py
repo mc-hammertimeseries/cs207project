@@ -5,7 +5,7 @@ from .lazy import *
 import operator as op
 import numbers
 import math
-from .. import pype
+import pype
 
 
 class TimeSeries:
@@ -206,6 +206,7 @@ class TimeSeries:
             raise ValueError("can't take std of empty list")
         return self._values.std()
 
+    @pype.lib_import.component
     def median(self):
         if (len(self._values) == 0):
             raise ValueError("can't take median of empty list")
@@ -249,7 +250,7 @@ class TimeSeries:
                                                       t_components, v_components)
 
     # binary operators
-
+    @pype.lib_import.component
     def __eq__(self, other):
         if isinstance(other, TimeSeries):
             if len(self) != len(other):
@@ -287,6 +288,7 @@ class TimeSeries:
             values += [func(self_val, other_val)]
         return TimeSeries(times, values)
 
+    @pype.lib_import.component
     def __add__(self, rhs):
         try:
             if isinstance(rhs, numbers.Real):
@@ -298,9 +300,11 @@ class TimeSeries:
         except TypeError:
             raise NotImplemented
 
+    @pype.lib_import.component
     def __radd__(self, other):
         return self + other
 
+    @pype.lib_import.component
     def __mul__(self, rhs):
         try:
             if isinstance(rhs, numbers.Real):
@@ -312,9 +316,11 @@ class TimeSeries:
         except TypeError:
             raise NotImplemented
 
+    @pype.lib_import.component
     def __rmul__(self, other):
         return self * other
 
+    @pype.lib_import.component
     def __sub__(self, rhs):
         try:
             if isinstance(rhs, numbers.Real):
@@ -326,19 +332,36 @@ class TimeSeries:
         except TypeError:
             raise NotImplemented
 
+    @pype.lib_import.component
     def __rsub__(self, other):
         return -self + other
 
     # unary operators
+    @pype.lib_import.component
     def __neg__(self):
         return TimeSeries(self._times, -self._values)
 
+    @pype.lib_import.component
+    def __truediv__(self, other):
+        try:
+            if isinstance(other, numbers.Real):
+                return TimeSeries(self._times, self._values / other)
+            elif isinstance(other, TimeSeries):
+                return self._binopt(other, op.truediv)
+            else:
+                raise NotImplemented
+        except TypeError:
+            raise NotImplemented
+
+    @pype.lib_import.component
     def __pos__(self):
         return TimeSeries(self._times, +self._values)
 
     # why are these not element-wise? says in the lab to be same semantics as vector class
+    @pype.lib_import.component
     def __abs__(self):
         return math.sqrt(sum(self._values))
 
+    @pype.lib_import.component
     def __bool__(self):
         return bool(abs(self))
