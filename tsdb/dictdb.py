@@ -3,22 +3,14 @@ from operator import and_
 from functools import reduce
 
 
-def metafiltered(d, schema):
-    d2 = {}
-    for k in d:
-        if k in schema:
-            d2[k] = schema[k]['convert'](d[k])
-    return d2
-
-
 class DictDB:
     "Database implementation in a dict"
-    def __init__(self, schema, pkfield):
+    def __init__(self, schema):
         "initializes database with indexed and schema"
         self.indexes = {}
         self.rows = {}
         self.schema = schema
-        self.pkfield = pkfield
+        self.pkfield = 'pk'
         for s in schema:
             indexinfo = schema[s]['index']
             if indexinfo is not None:

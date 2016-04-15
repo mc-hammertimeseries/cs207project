@@ -13,7 +13,7 @@ schema = {
 
 
 def main():
-    db = DictDB(schema, 'pk')
+    db = DictDB(schema)
     server = TSDBServer(db)
     server.run()
 
