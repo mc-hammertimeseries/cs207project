@@ -365,3 +365,15 @@ class TimeSeries:
     @pype.lib_import.component
     def __bool__(self):
         return bool(abs(self))
+
+    def to_json(self):
+        return {'times' : self._times.tolist(), 
+                'values': self._values.tolist()}
+
+    @classmethod
+    def from_json(cls, json_dict):
+        return cls(json_dict['times'],json_dict['values'])
+
+
+
+
