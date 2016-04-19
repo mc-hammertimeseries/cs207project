@@ -32,9 +32,13 @@ with open ('tests/samples/example0.ast') as f:
 with open ('tests/samples/example1.ast') as f:
     ast_example_1 = f.read()
 
+with open ('tests/samples/example2.ast') as f:
+    ast_example_2 = f.read()
+
 def test_ast():
     test_0 = TestPipeline(source='tests/samples/example0.ppl')
     test_1 = TestPipeline(source='tests/samples/example1.ppl')
+    test_2 = TestPipeline(source='tests/samples/example2.ppl')
 
     # Redirect standard output to mystdout
     # Code taken from http://stackoverflow.com/a/1218951
@@ -48,3 +52,7 @@ def test_ast():
     sys.stdout = mystdout = StringIO()
     test_1.ast.pprint()
     assert mystdout.getvalue() == ast_example_1
+
+    sys.stdout = mystdout = StringIO()
+    test_2.ast.pprint()
+    assert mystdout.getvalue() == ast_example_2
