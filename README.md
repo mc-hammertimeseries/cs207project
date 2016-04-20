@@ -5,7 +5,7 @@ This is a skeleton for the database part of milestone 2 of your project.
 ## What does this version add?
 
 - selects with predicates and choices of fields to return
--triggers (adding them, removing them, running them)
+- triggers (adding them, removing them, running them)
 
 ## copying this over
 
