@@ -1,6 +1,7 @@
 from .fgir import *
 from .optimize import FlowgraphOptimization
 from .error import Warn
+from time import sleep
 
 import asyncio
 
@@ -20,7 +21,9 @@ class PCodeOp(object):
 		# TODO
 		# hint: look at asyncio.gather
 		# hint: the same return value of the function is put in every output queue
-		pass
+		inputs = await asyncio.gather(*[in_q.get() for in_q in in_qs])
+		result = func(*inputs)
+		await asyncio.gather(*[out_q.put(result) for out_q in out_qs])
 
 	@staticmethod
 	async def forward(in_qs, out_qs):
@@ -31,7 +34,7 @@ class PCodeOp(object):
 	@staticmethod
 	async def libraryfunction(in_qs, out_qs, function_ref):
 		def f(*inputs):
-			pass
+			raise NotImplemented
 		await PCodeOp._node(in_qs, out_qs, f)
 
 	@staticmethod
@@ -50,7 +53,7 @@ class PCodeOp(object):
 	async def literal(out_qs, value_ref):
 		def f(*inputs):
 			return value_ref
-		await PCodeOp._node(in_qs, out_qs, f)
+		await PCodeOp._node([], out_qs, f)
 
 
 class PCode(object):
@@ -102,7 +105,9 @@ class PCodeGenerator(FlowgraphOptimization):
 		# TODO
 		# hint: destination nodes should be in flowgraph nodes
 		# hint: sources are their inputs
-		pass
+		for nodeid, node in flowgraph.nodes.items():
+			for input in node.inputs:
+				qs[(input, nodeid)] = asyncio.Queue()
 
 		# Add an extra input queue for each component input
 		component_inputs = []
@@ -118,7 +123,6 @@ class PCodeGenerator(FlowgraphOptimization):
 			node_in_qs = [qs[src_id,node_id] for src_id in node.inputs]
 			out_ids = [i for (i,n) in flowgraph.nodes.items() if node_id in n.inputs]
 			node_out_qs = [qs[node_id,dst_id] for dst_id in out_ids]
-
 			if node.type==FGNodeType.forward:
 				pc.add_op( PCodeOp.forward(node_in_qs, node_out_qs) )
 			elif node.type==FGNodeType.libraryfunction:

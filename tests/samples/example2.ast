@@ -32,3 +32,22 @@ ASTProgram
           ASTID
     ASTOutputExpr
       ASTID
+  ASTComponent
+    ASTID
+    ASTInputExpr
+      ASTID
+      ASTID
+    ASTAssignmentExpr
+      ASTID
+      ASTEvalExpr
+        ASTID
+        ASTID
+        ASTID
+    ASTAssignmentExpr
+      ASTID
+      ASTEvalExpr
+        ASTID
+        ASTID
+        ASTID
+    ASTOutputExpr
+      ASTID

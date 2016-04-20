@@ -6,8 +6,9 @@ from io import StringIO
 from ..pype.lexer import lexer
 from ..pype.parser import parser
 from ..pype.ast import *
-from ..pype.semantic_analysis import CheckSingleAssignment,PrettyPrint
-from ..pype.translate import SymbolTableVisitor
+from ..pype.semantic_analysis import CheckSingleAssignment, CheckSingleIOExpression, CheckUndefinedVariables
+from ..pype.translate import SymbolTableVisitor, LoweringVisitor
+from ..pype.optimize import *
 
 class TestPipeline(object):
     def __init__(self, source):
@@ -16,13 +17,23 @@ class TestPipeline(object):
 
     def compile(self, file):
         input = file.read()
-        # Lexing, parsing, AST construction
         ast = parser.parse(input, lexer=lexer)
+
         # Semantic analysis
-        # This just checks if something in a component is assigned twice
         ast.walk( CheckSingleAssignment() )
-        # Translation
+        ast.walk( CheckSingleIOExpression() )
         syms = ast.walk( SymbolTableVisitor() )
+        ast.walk( CheckUndefinedVariables(syms) )
+
+        # Translation
+        ir = ast.mod_walk( LoweringVisitor(syms) )
+
+        # Optimization
+        ir.flowgraph_pass( AssignmentEllision() )
+        ir.flowgraph_pass( DeadCodeElimination() )
+        ir.topological_flowgraph_pass( InlineComponents() )
+        for component in ir:
+            print (component)
         return syms, ast
 
 # Load each sample output into a list of strings

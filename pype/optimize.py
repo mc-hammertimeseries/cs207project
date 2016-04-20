@@ -109,7 +109,7 @@ class InlineComponents(TopologicalFlowgraphOptimization):
 			# Add a copy of every node in target flowgraph
 			id_map = {} # maps node id's in the target to node id's in our flowgraph
 			for tnode in target.nodes.values():
-				if tnode.type==FGNodeType.input or tnode.type==FGNodeType.output:
+				if tnode.type == FGNodeType.input or tnode.type == FGNodeType.output:
 					newtype = FGNodeType.forward
 				else:
 					newtype = tnode.type
@@ -119,7 +119,7 @@ class InlineComponents(TopologicalFlowgraphOptimization):
 			for tid,tnode in target.nodes.items():
 				flowgraph.nodes[id_map[tid]].inputs = [id_map[i] for i in tnode.inputs]
 			# Link inputs of cnode to inputs of target flowgraph
-			for cnode_input,targ_input in zip(cnode.inputs, target.inputs):
+			for cnode_input, targ_input in zip(cnode.inputs, target.inputs):
 				flowgraph.nodes[id_map[targ_input]].inputs = [cnode_input]
 			# Link output of target flowgraph to outputs of cnode
 			for oid,onode in flowgraph.nodes.items():

@@ -2,3 +2,9 @@
 
 { mul (input x y) (:= z (* x y)) (output z) }
 { dist (input a b) (:= c (+ (mul a b) (mul b a))) (output c) }
+
+{ dist2
+  (input a b)
+  (:= c (mul a b))
+  (:= d (+ c c))
+  (output d) }

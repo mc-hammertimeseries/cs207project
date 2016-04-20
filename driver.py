@@ -2,6 +2,12 @@
 
 import sys
 import pype
+import timeseries
+
+ts_1 = timeseries.TimeSeries(range(100), range(-50, 50))
 
 for fname in sys.argv[1:]:
-    pype.Pipeline(source=fname)
+	pipeline = pype.Pipeline(fname)
+	value = pipeline['standardize'].run(ts_1)
+	print(value)
+	print (value.mean(), value.std())
