@@ -1,23 +1,35 @@
 from collections import defaultdict
 from operator import and_
 from functools import reduce
+import operator
+
+# this dictionary will help you in writing a generic select operation
+OPMAP = {
+    '<': operator.lt,
+    '>': operator.le,
+    '==': operator.eq,
+    '!=': operator.ne,
+    '<=': operator.le,
+    '>=': operator.ge
+}
 
 
 class DictDB:
     "Database implementation in a dict"
-    def __init__(self, schema):
-        "initializes database with indexed and schema"
+    def __init__(self, schema, pkfield):
         self.indexes = {}
         self.rows = {}
         self.schema = schema
-        self.pkfield = 'pk'
+        self.pkfield = pkfield
         for s in schema:
             indexinfo = schema[s]['index']
+            # convert = schema[s]['convert']
+            # later use binary search trees for highcard/numeric
+            # bitmaps for lowcard/str_or_factor
             if indexinfo is not None:
                 self.indexes[s] = defaultdict(set)
 
     def insert_ts(self, pk, ts):
-        "given a pk and a timeseries, insert them"
         if pk not in self.rows:
             self.rows[pk] = {'pk': pk}
         else:
@@ -26,7 +38,6 @@ class DictDB:
         self.update_indices(pk)
 
     def upsert_meta(self, pk, meta):
-        "implement upserting field values, as long as the fields are in the schema."
         # your code here
         self.update_indices(pk)
 
@@ -44,6 +55,15 @@ class DictDB:
                 idx = self.indexes[field]
                 idx[v].add(pk)
 
-    def select(self, meta):
-        #implement select, AND'ing over the filters in the md metadata dict
-        #remember that each item in the dictionary looks like key==value
+    def select(self, meta, fields):
+        # your code here
+        # if fields is None: return only pks
+        # like so [pk1,pk2],[{},{}]
+        # if fields is [], this means all fields
+        #except for the 'ts' field. Looks like
+        #['pk1',...],[{'f1':v1, 'f2':v2},...]
+        # if the names of fields are given in the list, include only those fields. `ts` ia an
+        #acceptable field and can be used to just return time series.
+        #see tsdb_server to see how this return
+        #value is used
+        return pks, matchedfielddicts
