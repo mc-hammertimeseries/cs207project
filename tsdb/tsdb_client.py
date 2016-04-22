@@ -9,25 +9,33 @@ class TSDBClient(object):
         self.port = port
 
     def insert_ts(self, primary_key, ts):
-        #your code here, construct from the code in tsdb_ops.py
+        #your code here
+
 
     def upsert_meta(self, primary_key, metadata_dict):
         msg = TSDBOp_UpsertMeta(primary_key, metadata_dict).to_json()
         print("C> msg", msg)
         self._send(msg)
 
-    def select(self, metadata_dict={}, fields=None):
+    def select(self, metadata_dict={}, fields=None, additional=None):
+        # your code here
+
+
+    def augmented_select(self, proc, target, arg=None, metadata_dict={}, additional=None):
         #your code here
 
-    def add_trigger(self, proc, onwhat, target, arg):
+
+    def add_trigger(self, proc, onwhat, target, arg=None):
         # your code here
+
 
     def remove_trigger(self, proc, onwhat):
         # your code here
 
+
     async def _send_coro(self, msg, loop):
-        #your code here
-        return status, payload
+        # your code here
+
 
     def _send(self, msg):
         loop = asyncio.get_event_loop()
