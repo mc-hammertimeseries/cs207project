@@ -2,7 +2,9 @@ import asyncio
 from .tsdb_serialization import serialize, LENGTH_FIELD_LENGTH, Deserializer
 from .tsdb_ops import *
 from .tsdb_error import *
+import json
 
+INTEGER_FORMAT = "!L"
 
 class TSDBClient(object):
     """
@@ -23,19 +25,20 @@ class TSDBClient(object):
         self._send(serialized_json)
 
     def select(self, metadata_dict={}):
-        op = TSDBOp_InsertTS(metadata_dict)
+        op = TSDBOp_Select(metadata_dict)
         serialized_json = serialize(op.to_json())
-        self._send(serialized_json)
+        return self._send(serialized_json)[1]
 
     # Feel free to change this to be completely synchronous
     # from here onwards. Return the status and the payload
-    @asyncio.coroutine
-    def _send_coro(self, msg, loop):
-        reader, writer = yield from asyncio.open_connection('127.0.0.1', self.port, loop=loop)
+
+    async def _send_coro(self, msg, loop):
+        reader, writer = await asyncio.open_connection('127.0.0.1', self.port, loop=loop)
+        msg = (len(msg)+LENGTH_FIELD_LENGTH).to_bytes(LENGTH_FIELD_LENGTH, byteorder = 'little') + msg
         writer.write(msg)
-        data = yield from reader.read()
-        print('Data =', data.decode())
-        return TSDBStatus.OK, payload
+        data = await reader.read()
+        decoded = json.loads(data.decode())
+        return decoded['status'], decoded['payload']
 
     # call `_send` with a well formed message to send.
     # once again replace this function if appropriate

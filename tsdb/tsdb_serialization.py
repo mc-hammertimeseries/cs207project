@@ -11,7 +11,7 @@ def serialize(json_obj):
     end of the wire.'''
     string_io = io.StringIO()
     json.dump(json_obj, fp=string_io)
-    json_bytes = bytearray(string_io.read(), 'utf-8')
+    json_bytes = str.encode(string_io.getvalue())
     return json_bytes
 
 
@@ -45,7 +45,7 @@ class Deserializer(object):
         json_str = self.buf[LENGTH_FIELD_LENGTH:self.buflen].decode()
         self.buf = self.buf[self.buflen:]
         self.buflen = -1
-        # There may be more data in the buffer already, so preserve it
+        # there may be more data in the buffer already, so preserve it
         self._maybe_set_length()
         try:
             obj = json.loads(json_str)

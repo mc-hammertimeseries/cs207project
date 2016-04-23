@@ -28,9 +28,9 @@ class DictDB:
 
     def upsert_meta(self, pk, meta):
         if pk not in self.rows:
-            self.rows[pk] = {'pk': pk, 'md': meta}
-        else:
-            self.rows[pk]['md'] = meta
+            self.rows[pk] = {'pk': pk}
+        for m in meta:
+            self.rows[pk][m] = meta[m]
         self.update_indices(pk)
 
     def index_bulk(self, pks=[]):
@@ -48,18 +48,24 @@ class DictDB:
                 idx[v].add(pk)
 
     def select(self, meta):
+        results = {}
+        if not meta:
+            return self.rows
         # implement select, AND'ing over the filters in the md metadata dict
         # remember that each item in the dictionary looks like key==value
         for row in self.rows.values():
             meta_keys = set(meta.keys())
-            row_keys = set(row['md'].keys())
+            row_keys = set(row.keys())
             # get the intersection between the keys in meta and keys and row
             keys = meta_keys & row_keys
             # For-loop
+            match = len(keys) > 0
             for k in keys:
-                if not meta[k] == row['md'][k]:
+                if not meta[k] == row[k]:
+                    match = False
                     break
                 # All filters match: return row
-                return row
+            if match:
+                results[row['pk']] = row
         # If nothing is found, return None
-        return None
+        return results

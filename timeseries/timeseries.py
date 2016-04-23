@@ -116,6 +116,7 @@ class TimeSeries:
     """
 
     def __init__(self, times, values):
+
         self._times = np.array(times, dtype=float)
         self._values = np.array(values, dtype=float)
 
@@ -367,12 +368,8 @@ class TimeSeries:
         return bool(abs(self))
 
     def to_json(self):
-        return {'times' : self._times.tolist(), 
-                'values': self._values.tolist()}
+        return [self._times.tolist(), self._values.tolist()]
 
-    @classmethod
-    def from_json(cls, json_dict):
-        return cls(json_dict['times'],json_dict['values'])
 
 
 

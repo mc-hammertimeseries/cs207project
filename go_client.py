@@ -7,7 +7,6 @@ def main():
 
     print('Start')
     client.insert_ts('one',ts.TimeSeries([1, 2, 3],[1, 4, 9]))
-    print(' Here now')
     client.insert_ts('two',ts.TimeSeries([2, 3, 4],[4, 9, 16]))
     client.insert_ts('three',ts.TimeSeries([9,3,4],[4,0,16]))
     client.insert_ts('four',ts.TimeSeries([0,0,4],[1,0,4]))

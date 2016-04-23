@@ -61,7 +61,6 @@ class TSDBProtocol(asyncio.Protocol):
                     response = self._select(op)
                 else:
                     response = TSDBOp_Return(TSDBStatus.UNKNOWN_ERROR, op['op'])
-
             self.conn.write(serialize(response.to_json()))
             self.conn.close()
 
