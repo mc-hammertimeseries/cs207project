@@ -4,8 +4,6 @@ from .tsdb_ops import *
 from .tsdb_error import *
 import json
 
-INTEGER_FORMAT = "!L"
-
 class TSDBClient(object):
     """
     The client. This could be used in a python program, web server, or REPL!
@@ -24,10 +22,20 @@ class TSDBClient(object):
         serialized_json = serialize(op.to_json())
         self._send(serialized_json)
 
-    def select(self, metadata_dict={}):
-        op = TSDBOp_Select(metadata_dict)
+    def select(self, metadata_dict={}, fields=None):
+        op = TSDBOp_Select(metadata_dict, fields)
         serialized_json = serialize(op.to_json())
         return self._send(serialized_json)[1]
+
+    def add_trigger(self, proc, onwhat, target, arg):
+        op = TSDBOp_AddTrigger(proc, onwhat, target, arg)
+        serialized_json = serialize(op.to_json())
+        self._send(serialized_json)
+
+    def remove_trigger(self, proc, onwhat):
+        op = TSDBOp_RemoveTrigger(proc, onwhat)
+        serialized_json = serialize(op.to_json())
+        self._send(serialized_json)
 
     # Feel free to change this to be completely synchronous
     # from here onwards. Return the status and the payload
