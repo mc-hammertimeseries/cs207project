@@ -12,12 +12,21 @@ OPMAP = {
     '>=': operator.ge
 }
 
+def metafiltered(d, schema, fieldswanted):
+    d2 = {}
+    if len(fieldswanted) == 0:
+        keys = [k for k in d.keys() if k != 'ts']
+    else:
+        keys = [k for k in d.keys() if k in fieldswanted]
+    for k in keys:
+        if k in schema:
+            d2[k] = schema[k]['convert'](d[k])
+    return d2
+
 
 class DictDB:
     "Database implementation in a dict"
-
     def __init__(self, schema, pkfield):
-        "initializes database with indexed and schema"
         self.indexes = {}
         self.rows = {}
         self.schema = schema
@@ -47,6 +56,7 @@ class DictDB:
             if type(m) != str:
                 raise TypeError('Meta key must be string')
             self.rows[pk][m] = meta[m]
+        # should below be a coroutine so we dont block?
         self.update_indices(pk)
 
     def index_bulk(self, pks=[]):
@@ -63,7 +73,8 @@ class DictDB:
                 idx = self.indexes[field]
                 idx[v].add(pk)
 
-    def select(self, meta, fields):
+
+    def select(self, meta, fields, additional):
         # if fields is None: return only pks
         # like so [pk1,pk2],[{},{}]
         # if fields is [], this means all fields
@@ -73,6 +84,11 @@ class DictDB:
         # acceptable field and can be used to just return time series.
         # see tsdb_server to see how this return
         #value is used
+        #additional is a dictionary. It has two possible keys:
+        #(a){'sort_by':'-order'} or {'sort_by':'+order'} where order
+        #must be in the schema AND have an index. (b) limit: 'limit':10
+        #which will give you the top 10 in the current sort order.
+        #your code here
         pks = []
         matchedfielddicts =[]
         if not meta:

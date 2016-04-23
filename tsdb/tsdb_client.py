@@ -4,11 +4,10 @@ from .tsdb_ops import *
 from .tsdb_error import *
 import json
 
-class TSDBClient(object):
-    """
-    The client. This could be used in a python program, web server, or REPL!
-    """
 
+
+class TSDBClient(object):
+    "client"
     def __init__(self, port=9999):
         self.port = port
 
@@ -22,12 +21,15 @@ class TSDBClient(object):
         serialized_json = serialize(op.to_json())
         self._send(serialized_json)
 
-    def select(self, metadata_dict={}, fields=None):
+    def select(self, metadata_dict={}, fields=None, additional=None):
         op = TSDBOp_Select(metadata_dict, fields)
         serialized_json = serialize(op.to_json())
         return self._send(serialized_json)[1]
 
-    def add_trigger(self, proc, onwhat, target, arg):
+    def augmented_select(self, proc, target, arg=None, metadata_dict={}, additional=None):
+        pass
+
+    def add_trigger(self, proc, onwhat, target, arg=None):
         op = TSDBOp_AddTrigger(proc, onwhat, target, arg)
         serialized_json = serialize(op.to_json())
         self._send(serialized_json)

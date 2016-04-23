@@ -1,5 +1,9 @@
 import json
+<<<<<<< HEAD
 import io
+=======
+from collections import OrderedDict
+>>>>>>> f3b81180a024875ab6da8564a9c0d40a9673f385
 
 LENGTH_FIELD_LENGTH = 4
 
@@ -9,10 +13,15 @@ def serialize(json_obj):
 
     Includes a fixed-width length field to simplify reconstruction on the other
     end of the wire.'''
+<<<<<<< HEAD
     string_io = io.StringIO()
     json.dump(json_obj, fp=string_io)
     json_bytes = str.encode(string_io.getvalue())
     return json_bytes
+=======
+    #your code here
+
+>>>>>>> f3b81180a024875ab6da8564a9c0d40a9673f385
 
 
 class Deserializer(object):
@@ -45,10 +54,19 @@ class Deserializer(object):
         json_str = self.buf[LENGTH_FIELD_LENGTH:self.buflen].decode()
         self.buf = self.buf[self.buflen:]
         self.buflen = -1
+<<<<<<< HEAD
         # there may be more data in the buffer already, so preserve it
         self._maybe_set_length()
         try:
             obj = json.loads(json_str)
+=======
+        # There may be more data in the buffer already, so preserve it
+        self._maybe_set_length()
+        try:
+            #Note how now everything is assumed to be an OrderedDict
+            obj = json.loads(json_str, object_pairs_hook=OrderedDict)
+            #print("OBJ", obj)
+>>>>>>> f3b81180a024875ab6da8564a9c0d40a9673f385
             return obj
         except json.JSONDecodeError:
             print('Invalid JSON object received:\n'+str(json_str))
