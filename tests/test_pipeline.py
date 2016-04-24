@@ -32,8 +32,11 @@ class TestPipeline(object):
         ir.flowgraph_pass( AssignmentEllision() )
         ir.flowgraph_pass( DeadCodeElimination() )
         ir.topological_flowgraph_pass( InlineComponents() )
-        for component in ir:
-            print (component)
+
+        # Ensure that all component nodes were eliminated
+        for component in ir.graphs.values():
+            for n in component.nodes.values():
+                assert n.type != FGNodeType.component, 'component nodes remain in graph'
         return syms, ast
 
 # Load each sample output into a list of strings
