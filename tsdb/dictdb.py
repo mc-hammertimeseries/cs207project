@@ -1,4 +1,4 @@
-from collections import defaultdict
+from collections import defaultdict, OrderedDict
 from operator import and_
 from functools import reduce
 import operator
@@ -88,7 +88,6 @@ class DictDB:
         #(a){'sort_by':'-order'} or {'sort_by':'+order'} where order
         #must be in the schema AND have an index. (b) limit: 'limit':10
         #which will give you the top 10 in the current sort order.
-        #your code here
         pks = []
         matchedfielddicts =[]
         if not meta:
@@ -101,10 +100,9 @@ class DictDB:
                 row_keys = set(row.keys())
                 # get the intersection between the keys in meta and keys and row
                 keys = meta_keys & row_keys
-                # For-loop
                 match = len(keys) > 0
                 for k in keys:
-                    if type(meta[k]) is not dict:
+                    if not isinstance(meta[k],dict):
                         if not meta[k] == row[k]:
                             match = False
                             break
@@ -128,4 +126,26 @@ class DictDB:
                     for field in fields:
                         field_dic[field] = self.rows[pk][field]
             matchedfielddicts.append(field_dic)
+        # additional filters
+        if additional is not None:
+            if 'sort_by' in additional:
+                sortfield = additional['sort_by'][1:]
+                direction = additional['sort_by'][0]
+                results = list(zip(pks,[self.rows[p] for p in pks]))
+                if direction == '+':
+                    results.sort(key = lambda x: x[1][sortfield])
+                else:
+                    results.sort(key = lambda x: -x[1][sortfield])
+            if 'limit' in additional:
+                results = results[:additional['limit']]
+            results_pks = list(map(lambda x: x[0], results))
+            actual_results = dict(zip(pks, matchedfielddicts))
+            return results_pks, [actual_results[pk] for pk in results_pks]
         return pks, matchedfielddicts
+
+
+
+
+
+
+

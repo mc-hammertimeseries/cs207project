@@ -22,12 +22,14 @@ class TSDBClient(object):
         self._send(serialized_json)
 
     def select(self, metadata_dict={}, fields=None, additional=None):
-        op = TSDBOp_Select(metadata_dict, fields)
+        op = TSDBOp_Select(metadata_dict, fields, additional)
         serialized_json = serialize(op.to_json())
-        return self._send(serialized_json)[1]
+        return self._send(serialized_json)
 
     def augmented_select(self, proc, target, arg=None, metadata_dict={}, additional=None):
-        pass
+        op = TSDBOp_AugmentedSelect(proc, target, arg, metadata_dict, additional)
+        serialized_json = serialize(op.to_json())
+        return self._send(serialized_json)
 
     def add_trigger(self, proc, onwhat, target, arg=None):
         op = TSDBOp_AddTrigger(proc, onwhat, target, arg)
@@ -44,10 +46,11 @@ class TSDBClient(object):
 
     async def _send_coro(self, msg, loop):
         reader, writer = await asyncio.open_connection('127.0.0.1', self.port, loop=loop)
-        msg = (len(msg)+LENGTH_FIELD_LENGTH).to_bytes(LENGTH_FIELD_LENGTH, byteorder = 'little') + msg
         writer.write(msg)
         data = await reader.read()
-        decoded = json.loads(data.decode())
+        d = Deserializer()
+        d.append(data)
+        decoded = d.deserialize()
         return decoded['status'], decoded['payload']
 
     # call `_send` with a well formed message to send.

@@ -20,8 +20,10 @@ def stand(x, m, s):
     return (x-m)/s
 
 def ccor(ts1, ts2):
+    v1 = ts1.values()
+    v2 = ts2.values()
     "given two standardized time series, compute their cross-correlation using FFT"
-    #your code here
+    return nfft.ifft(nfft.fft(v1)*np.conj(nfft.fft(v2)))
 
 
 def max_corr_at_phase(ts1, ts2):
@@ -30,13 +32,25 @@ def max_corr_at_phase(ts1, ts2):
     maxcorr = ccorts[idx]
     return idx, maxcorr
 
+
 #The equation for the kernelized cross correlation is given at
 #http://www.cs.tufts.edu/~roni/PUB/ecml09-tskernels.pdf
 #normalize the kernel there by np.sqrt(K(x,x)K(y,y)) so that the correlation
 #of a time series with itself is 1.
 def kernel_corr(ts1, ts2, mult=1):
     "compute a kernelized correlation so that we can get a real distance"
-    #your code here.
+
+    def kernel(ts1,ts2):
+        v1 = ts1.values()
+        v2 = ts2.values()
+        s = 0
+        for i in range(len(v1)):
+            # print(np.dot(v1, np.concatenate((np.zeros(i),v2[i:]))))
+            s += np.exp(np.dot(v1, np.concatenate((np.zeros(i),v2[i:]))))
+        return s
+
+    return kernel(ts1, ts2) / np.sqrt(kernel(ts1, ts1) * kernel(ts2, ts2))
+
 
 
 #this is for a quick and dirty test of these functions

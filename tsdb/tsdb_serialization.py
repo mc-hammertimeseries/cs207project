@@ -12,7 +12,7 @@ def serialize(json_obj):
     string_io = io.StringIO()
     json.dump(json_obj, fp=string_io)
     json_bytes = str.encode(string_io.getvalue())
-    return json_bytes
+    return (len(json_bytes)+LENGTH_FIELD_LENGTH).to_bytes(LENGTH_FIELD_LENGTH, byteorder = 'little') + json_bytes
 
 
 class Deserializer(object):
@@ -50,7 +50,6 @@ class Deserializer(object):
         try:
             #Note how now everything is assumed to be an OrderedDict
             obj = json.loads(json_str, object_pairs_hook=OrderedDict)
-            #print("OBJ", obj)
             return obj
         except json.JSONDecodeError:
             print('Invalid JSON object received:\n'+str(json_str))

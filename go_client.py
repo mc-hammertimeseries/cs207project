@@ -71,7 +71,7 @@ def main():
     for k in results:
         print(k, results[k])
 
-    print('---------ALL FILEDS------------')
+    print('---------ALL FIELDS------------')
     client.select(fields=[])
 
     print('------------TS with order 1---------')
@@ -95,27 +95,39 @@ def main():
         print(k, results[k])
 
     print('------now computing vantage point stuff---------------------')
-    print("VPS", vpkeys)
 
     #we first create a query time series.
     _, query = tsmaker(0.5, 0.2, 0.1)
 
     # your code here begins
 
-    # Step 1: in the vpdist key, get  distances from query to vantage points
+    # Step 1: in the vpdist key, get distances from query to vantage points
     # this is an augmented select
-
+    client.insert_ts('ts-query',query)
+    dists = client.select({'pk': 'ts-query'},fields=['d_vp-{}'.format(i) for i in range(5)])[1]['ts-query']
+    min_dist = np.inf
+    nearest_vp_to_query = None
+    for vp in dists:
+        if dists[vp] < min_dist:
+            min_dist = dists[vp]
+            nearest_vp_to_query = vp
+    print(nearest_vp_to_query,min_dist)
     #1b: choose the lowest distance vantage point
     # you can do this in local code
-
     # Step 2: find all time series within 2*d(query, nearest_vp_to_query)
     #this is an augmented select to the same proc in correlation
-
+    # nearestwanted = client.augmented_select('corr', ['d_vp-1'], arg=query, 
+    #     metadata_dict={'d_vp-1': {'<=': 2.0*min_dist}}, additional={'sort_by': '+d_vp-1', 'limit': 10})
+    nearestwanted = client.select(fields=['d_vp-1'], metadata_dict={'d_vp-1': {'<=': 2.0*min_dist}}, additional={'sort_by': '+d_vp-1', 'limit': 10})
+    print(nearestwanted)
+    nearestwanted = list(nearestwanted[1].keys())[0]
     #2b: find the smallest distance amongst this ( or k smallest)
     #you can do this in local code
     #your code here ends
     # plot the timeseries to see visually how we did.
     import matplotlib.pyplot as plt
+    for k in tsdict:
+        plt.plot(tsdict[k], alpha=0.15)
     plt.plot(query)
     plt.plot(tsdict[nearestwanted])
     plt.show()

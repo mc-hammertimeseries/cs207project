@@ -14,13 +14,14 @@ def proc_main(pk, row, arg):
     stand_argts = stand(argts, argts.mean(), argts.std())
     # for each row in our select/etc, standardize the time series
     stand_rowts = stand(row['ts'], row['ts'].mean(), row['ts'].std())
-    #compute the normalozed kernelized cross-correlation
+    #compute the normalized kernelized cross-correlation
     kerncorr = kernel_corr(stand_rowts, stand_argts, 5)
     # compute a distance from it.
     #The distance is given by np.sqrt(K(x,x) + K(y,y) - 2*K(x,y))
     #since we are normalized the autocorrs are 1
     kerndist = np.sqrt(2*(1-kerncorr))
     return [kerndist]
+    # return [np.dot(stand_rowts.values()-stand_argts.values(),stand_rowts.values()-stand_argts.values())]
 
 #the function is wrapped in a coroutine for triggers
 async def main(pk, row, arg):
