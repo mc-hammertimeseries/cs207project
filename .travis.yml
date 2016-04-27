@@ -1,10 +1,6 @@
 language: python
 python:
     - "3.5"
-before_install:
-    - pip install pytest pytest-cov
-    - pip install coveralls
-    - pip install ply
 install:
     - wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
     - bash miniconda.sh -b -p $HOME/miniconda
@@ -18,6 +14,9 @@ install:
     - conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION numpy scipy
     - source activate test-environment
     - python setup.py install
+    - pip install pytest pytest-cov
+    - pip install coveralls
+    - pip install ply
 script:
     - python -m pytest --doctest-modules --cov-report term-missing --cov . --ignore driver.py
 after_success:
