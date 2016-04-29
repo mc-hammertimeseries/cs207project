@@ -9,6 +9,7 @@ from collections import OrderedDict
 
 
 class TSDBOp(dict):
+
     def __init__(self, op):
         self['op'] = op
 
@@ -30,7 +31,7 @@ class TSDBOp(dict):
             elif isinstance(v, list):
                 json_dict[k] = [self.to_json(i) for i in v]
             elif isinstance(v, OrderedDict):
-                tuples=[]
+                tuples = []
                 for key in v:
                     tuples.append((key, self.to_json(v[key])))
                 json_dict[k] = OrderedDict(tuples)
@@ -52,6 +53,7 @@ class TSDBOp(dict):
 
 
 class TSDBOp_InsertTS(TSDBOp):
+
     def __init__(self, pk, ts):
         super().__init__('insert_ts')
         self['pk'], self['ts'] = pk, ts
@@ -70,7 +72,6 @@ class TSDBOp_Return(TSDBOp):
     @classmethod
     def from_json(cls, json_dict):  # should not be used
         return cls(json_dict['status'], json_dict['payload'])
-
 
 
 class TSDBOp_UpsertMeta(TSDBOp):
@@ -97,6 +98,7 @@ class TSDBOp_Select(TSDBOp):
     def from_json(cls, json_dict):
         return cls(json_dict['md'], json_dict['fields'], json_dict['additional'])
 
+
 class TSDBOp_AugmentedSelect(TSDBOp):
     """
     A hybrid of select, and add trigger, we only miss the onwhat key as this op
@@ -105,6 +107,7 @@ class TSDBOp_AugmentedSelect(TSDBOp):
     add_trigger, except that instead of upserting meta with the targets, that
     data is sent back to the user.
     """
+
     def __init__(self, proc, target, arg, md, additional):
         super().__init__('augmented_select')
         self['md'] = md
@@ -131,6 +134,7 @@ class TSDBOp_AddTrigger(TSDBOp):
     def from_json(cls, json_dict):
         return cls(json_dict['proc'], json_dict['onwhat'], json_dict['target'], json_dict['arg'])
 
+
 class TSDBOp_RemoveTrigger(TSDBOp):
 
     def __init__(self, proc, onwhat):
@@ -138,17 +142,16 @@ class TSDBOp_RemoveTrigger(TSDBOp):
         self['proc'] = proc
         self['onwhat'] = onwhat
 
-
     @classmethod
     def from_json(cls, json_dict):
         return cls(json_dict['proc'], json_dict['onwhat'])
 
 # This simplifies reconstructing TSDBOp instances from network data.
 typemap = {
-  'insert_ts': TSDBOp_InsertTS,
-  'upsert_meta': TSDBOp_UpsertMeta,
-  'select': TSDBOp_Select,
-  'augmented_select': TSDBOp_AugmentedSelect,
-  'add_trigger': TSDBOp_AddTrigger,
-  'remove_trigger': TSDBOp_RemoveTrigger,
+    'insert_ts': TSDBOp_InsertTS,
+    'upsert_meta': TSDBOp_UpsertMeta,
+    'select': TSDBOp_Select,
+    'augmented_select': TSDBOp_AugmentedSelect,
+    'add_trigger': TSDBOp_AddTrigger,
+    'remove_trigger': TSDBOp_RemoveTrigger,
 }

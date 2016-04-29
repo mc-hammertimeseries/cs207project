@@ -16,9 +16,8 @@ def trigger_callback_maker(pk, target, calltomake):
         return result
     return callback_
 
+
 class TSDBProtocol(asyncio.Protocol):
-
-
 
     def __init__(self, server):
         self.server = server
@@ -45,27 +44,25 @@ class TSDBProtocol(asyncio.Protocol):
             d = OrderedDict(zip(loids, fields))
             return TSDBOp_Return(TSDBStatus.OK, op['op'], d)
         else:
-            d = OrderedDict((k,{}) for k in loids)
+            d = OrderedDict((k, {}) for k in loids)
             return TSDBOp_Return(TSDBStatus.OK, op['op'], d)
-
 
     def _augmented_select(self, op):
         "run a select and then synchronously run some computation on it"
         loids, fields = self.server.db.select(op['md'], None, op['additional'])
         proc = op['proc']  # the module in procs
         arg = op['arg']  # an additional argument, could be a constant
-        target = op['target'] #not used to upsert any more, but rather to
+        target = op['target']  # not used to upsert any more, but rather to
         # return results in a dictionary with the targets mapped to the return
         # values from proc_main
-        mod = import_module('procs.'+proc)
-        storedproc = getattr(mod,'proc_main')
-        results=[]
+        mod = import_module('procs.' + proc)
+        storedproc = getattr(mod, 'proc_main')
+        results = []
         for pk in loids:
             row = self.server.db.rows[pk]
             result = storedproc(pk, row, arg)
             results.append(dict(zip(target, result)))
         return TSDBOp_Return(TSDBStatus.OK, op['op'], dict(zip(loids, results)))
-
 
     def _add_trigger(self, op):
         trigger_proc = op['proc']  # the module in procs
@@ -73,9 +70,10 @@ class TSDBProtocol(asyncio.Protocol):
         trigger_target = op['target']  # if provided, this meta will be upserted
         trigger_arg = op['arg']  # an additional argument, could be a constant
         try:
-            mod = import_module('procs.'+trigger_proc)
-            storedproc = getattr(mod,'main')
-            self.server.triggers[trigger_onwhat].append((trigger_proc, storedproc, trigger_arg, trigger_target))
+            mod = import_module('procs.' + trigger_proc)
+            storedproc = getattr(mod, 'main')
+            self.server.triggers[trigger_onwhat].append(
+                (trigger_proc, storedproc, trigger_arg, trigger_target))
             return TSDBOp_Return(TSDBStatus.OK, op['op'])
         except:
             print(trigger_proc + ' not found')
@@ -86,7 +84,7 @@ class TSDBProtocol(asyncio.Protocol):
         trigger_onwhat = op['onwhat']
         trigs = self.server.triggers[trigger_onwhat]
         for t in trigs:
-            if t[0]==trigger_proc:
+            if t[0] == trigger_proc:
                 trigs.remove(t)
         return TSDBOp_Return(TSDBStatus.OK, op['op'])
 
@@ -98,7 +96,8 @@ class TSDBProtocol(asyncio.Protocol):
             for pk in rowmatch:
                 row = self.server.db.rows[pk]
                 task = asyncio.ensure_future(t(pk, row, arg))
-                task.add_done_callback(trigger_callback_maker(pk, target, self.server.db.upsert_meta))
+                task.add_done_callback(trigger_callback_maker(
+                    pk, target, self.server.db.upsert_meta))
 
     def connection_made(self, conn):
         print('S> connection made')
@@ -155,20 +154,20 @@ class TSDBServer(object):
     def run(self):
         loop = asyncio.get_event_loop()
         self.listener = loop.create_server(lambda: TSDBProtocol(self), '127.0.0.1', self.port)
-        print('S> Starting TSDB server on port',self.port)
+        print('S> Starting TSDB server on port', self.port)
         listener = loop.run_until_complete(self.listener)
         try:
             loop.run_forever()
         except KeyboardInterrupt:
             print('S> Exiting.')
         except Exception as e:
-            print('S> Exception:',e)
+            print('S> Exception:', e)
         finally:
             listener.close()
             loop.close()
 
 
-if __name__=='__main__':
+if __name__ == '__main__':
     empty_schema = {'pk': {'convert': lambda x: x, 'index': None}}
     db = DictDB(empty_schema, 'pk')
     TSDBServer(db).run()

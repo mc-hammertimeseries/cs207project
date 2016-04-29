@@ -12,6 +12,7 @@ OPMAP = {
     '>=': operator.ge
 }
 
+
 def metafiltered(d, schema, fieldswanted):
     d2 = {}
     if len(fieldswanted) == 0:
@@ -26,6 +27,7 @@ def metafiltered(d, schema, fieldswanted):
 
 class DictDB:
     "Database implementation in a dict"
+
     def __init__(self, schema, pkfield):
         self.indexes = {}
         self.rows = {}
@@ -73,7 +75,6 @@ class DictDB:
                 idx = self.indexes[field]
                 idx[v].add(pk)
 
-
     def select(self, meta, fields, additional):
         # if fields is None: return only pks
         # like so [pk1,pk2],[{},{}]
@@ -84,12 +85,12 @@ class DictDB:
         # acceptable field and can be used to just return time series.
         # see tsdb_server to see how this return
         #value is used
-        #additional is a dictionary. It has two possible keys:
+        # additional is a dictionary. It has two possible keys:
         #(a){'sort_by':'-order'} or {'sort_by':'+order'} where order
-        #must be in the schema AND have an index. (b) limit: 'limit':10
-        #which will give you the top 10 in the current sort order.
+        # must be in the schema AND have an index. (b) limit: 'limit':10
+        # which will give you the top 10 in the current sort order.
         pks = []
-        matchedfielddicts =[]
+        matchedfielddicts = []
         if not meta:
             pks = self.rows.keys()
         # implement select, AND'ing over the filters in the md metadata dict
@@ -102,7 +103,7 @@ class DictDB:
                 keys = meta_keys & row_keys
                 match = len(keys) > 0
                 for k in keys:
-                    if not isinstance(meta[k],dict):
+                    if not isinstance(meta[k], dict):
                         if not meta[k] == row[k]:
                             match = False
                             break
@@ -131,21 +132,14 @@ class DictDB:
             if 'sort_by' in additional:
                 sortfield = additional['sort_by'][1:]
                 direction = additional['sort_by'][0]
-                results = list(zip(pks,[self.rows[p] for p in pks]))
+                results = list(zip(pks, [self.rows[p] for p in pks]))
                 if direction == '+':
-                    results.sort(key = lambda x: x[1][sortfield])
+                    results.sort(key=lambda x: x[1][sortfield])
                 else:
-                    results.sort(key = lambda x: -x[1][sortfield])
+                    results.sort(key=lambda x: -x[1][sortfield])
             if 'limit' in additional:
                 results = results[:additional['limit']]
             results_pks = list(map(lambda x: x[0], results))
             actual_results = dict(zip(pks, matchedfielddicts))
             return results_pks, [actual_results[pk] for pk in results_pks]
         return pks, matchedfielddicts
-
-
-
-
-
-
-

@@ -5,7 +5,6 @@ from .tsdb_error import *
 import json
 
 
-
 class TSDBClient(object):
     "client"
     def __init__(self, port=9999):
