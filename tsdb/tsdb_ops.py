@@ -1,4 +1,4 @@
-from ..timeseries import TimeSeries
+from timeseries import TimeSeries
 from .tsdb_error import *
 from collections import OrderedDict
 

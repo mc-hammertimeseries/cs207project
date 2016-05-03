@@ -5,7 +5,7 @@ from .lazy import *
 import operator as op
 import numbers
 import math
-from .. import pype
+import pype
 
 
 class TimeSeries:
