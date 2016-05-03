@@ -5,7 +5,6 @@ from collections import defaultdict, OrderedDict
 from .tsdb_serialization import Deserializer, serialize
 from .tsdb_error import *
 from .tsdb_ops import *
-import procs
 
 
 def trigger_callback_maker(pk, target, calltomake):
@@ -70,7 +69,7 @@ class TSDBProtocol(asyncio.Protocol):
         trigger_target = op['target']  # if provided, this meta will be upserted
         trigger_arg = op['arg']  # an additional argument, could be a constant
         try:
-            mod = import_module('procs.' + trigger_proc)
+            mod = import_module('.' + trigger_proc, 'procs')
             storedproc = getattr(mod, 'main')
             self.server.triggers[trigger_onwhat].append(
                 (trigger_proc, storedproc, trigger_arg, trigger_target))
@@ -166,6 +165,10 @@ class TSDBServer(object):
             listener.close()
             loop.close()
 
+    def quit(self):
+        print('S> Exiting.')
+        loop = asyncio.get_event_loop()
+        loop.close()
 
 if __name__ == '__main__':
     empty_schema = {'pk': {'convert': lambda x: x, 'index': None}}

@@ -5,7 +5,7 @@ from .lazy import *
 import operator as op
 import numbers
 import math
-import pype
+from .. import pype
 
 
 class TimeSeries:
@@ -369,8 +369,3 @@ class TimeSeries:
 
     def to_json(self):
         return [self._times.tolist(), self._values.tolist()]
-
-
-
-
-

@@ -3,8 +3,8 @@ from pytest import raises
 
 
 def test_str():
-    assert str(ts.TimeSeries(range(5), range(5, 10))
-               ) == "TimeSeries with 5 elements: ([0.0, 1.0, 2.0, 3.0, 4.0], [5.0, 6.0, 7.0, 8.0, 9.0])"
+    assert str(ts.TimeSeries(range(5), range(5, 10))) == \
+      "TimeSeries with 5 elements: ([0.0, 1.0, 2.0, 3.0, 4.0], [5.0, 6.0, 7.0, 8.0, 9.0])"
 
 
 def test_len_error():
@@ -65,18 +65,20 @@ def test_binopt_error():
     with raises(ValueError):
         t1 + t2
 
+
 def test_bool():
     t1 = ts.TimeSeries([1, 2, 3], [4, 5, 6])
     t2 = ts.TimeSeries([0, 0, 0], [0, 1, -1])
     assert bool(t1) == True
     assert bool(t2) == False
 
+
 def test_contains():
     t1 = ts.TimeSeries([1, 2, 3], [4, 5, 6])
     assert 1 in t1
     assert 4 not in t1
 
+
 def test_iter():
     t1 = ts.TimeSeries([1, 2, 3], [4, 5, 6])
     assert list(iter(t1)) == [4.0, 5.0, 6.0]
-

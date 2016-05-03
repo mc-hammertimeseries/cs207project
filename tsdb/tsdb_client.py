@@ -40,9 +40,7 @@ class TSDBClient(object):
         serialized_json = serialize(op.to_json())
         self._send(serialized_json)
 
-    # Feel free to change this to be completely synchronous
-    # from here onwards. Return the status and the payload
-
+    # Returns status and payload
     async def _send_coro(self, msg, loop):
         reader, writer = await asyncio.open_connection('127.0.0.1', self.port, loop=loop)
         writer.write(msg)

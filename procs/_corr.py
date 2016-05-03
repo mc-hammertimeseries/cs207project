@@ -1,6 +1,6 @@
 import numpy.fft as nfft
 import numpy as np
-import timeseries as ts
+from .. import timeseries as ts
 from scipy.stats import norm
 
 def tsmaker(m, s, j):
