@@ -2,6 +2,8 @@ from ..tsdb import TSDBClient, TSDBServer, DictDB
 from timeseries import TimeSeries
 from collections import OrderedDict
 from multiprocessing import Process
+import os
+import signal
 import numpy as np
 import pytest
 import time
@@ -171,5 +173,4 @@ def test_augmented_select():
     assert np.isclose(result['d_vp-0'], 0.5835690085252777)
 
 def teardown_module(module):
-    server.quit()
-    server_process.terminate()
+    os.kill(server_process.pid, signal.SIGINT)
