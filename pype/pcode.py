@@ -18,9 +18,6 @@ class PCodeOp(object):
 		`in_qs`: an ordered list of asyncio.Queues() which hold the node's inputs.
 		`out_qs`: a list of asyncio.Queues() into which the function's output should go
 		`func`: the function to apply to the inputs which produces the output value'''
-		# TODO
-		# hint: look at asyncio.gather
-		# hint: the same return value of the function is put in every output queue
 		inputs = await asyncio.gather(*[in_q.get() for in_q in in_qs])
 		result = func(*inputs)
 		await asyncio.gather(*[out_q.put(result) for out_q in out_qs])

@@ -1,9 +1,8 @@
-from .. import timeseries as ts
+import timeseries as ts
 import numpy as np
-
+import asyncio
 from ._corr import stand, kernel_corr
 
-import asyncio
 
 # this function is directly used for augmented selects
 def proc_main(pk, row, arg):

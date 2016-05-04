@@ -3,14 +3,10 @@ import ply.yacc
 from .lexer import tokens, reserved
 from .ast import *
 
-# Here's an example production rule which constructs an AST node
-
 
 def p_program(p):
     r'program : statement_list'
     p[0] = ASTProgram(p[1])
-
-# Here's an example production rule which simply aggregates lists of AST nodes.
 
 
 def p_statement_list(p):
@@ -144,10 +140,6 @@ def p_parameter_list(p):
         p[0] = p[1]
     else:
         p[0] = [p[1]]
-
-# NOTE: You do NOT need to write production rules with error tokens in them.
-#       If you're interested, read section 6.8, but it requires a fairly deep
-#       understanding of LR parsers and the language specification.
 
 
 def p_error(p):

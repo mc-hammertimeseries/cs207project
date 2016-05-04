@@ -2,8 +2,6 @@ from .fgir import *
 from .error import *
 
 # Optimization pass interfaces
-
-
 class Optimization(object):
 
 		def visit(self, obj): pass

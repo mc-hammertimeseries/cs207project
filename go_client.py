@@ -47,6 +47,7 @@ def main():
     for i in range(5):
         # add 5 triggers to upsert distances to these vantage points
         client.add_trigger('corr', 'insert_ts', ["d_vp-{}".format(i)], tsdict[vpkeys[i]])
+        print('lalala:', i, *tsdict[vpkeys[i]])
         # change the metadata for the vantage points to have meta['vp']=True
         metadict[vpkeys[i]]['vp']=True
     # Having set up the triggers, now inser the time series, and upsert the metadata
