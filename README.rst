@@ -1,19 +1,15 @@
-============
-cs207project
-============
+# CS207 TimeSeries Project
+
+A package for storing and manipulating time series.
+
+<code>timeseries</code>: Code for creating and manipulating time series
+
+<code>pype</code>: A pipeline language
+
+<code>tests</code>: Tests for other modules
 
 
-Add a short description here!
+[![Build Status](https://travis-ci.org/mc-hammertimeseries/cs207project.svg?branch=master)](https://travis-ci.org/mc-hammertimeseries/cs207project)
 
+[![Coverage Status](https://coveralls.io/repos/github/mc-hammertimeseries/cs207project/badge.svg?branch=master)](https://coveralls.io/github/mc-hammertimeseries/cs207project?branch=master)
 
-Description
-===========
-
-A LONGER DESCRIPTION OF YOUR PROJECT GOES HERE...
-
-
-Note
-====
-
-This project has been set up using PyScaffold 2.5.5. For details and usage
-information on PyScaffold see http://pyscaffold.readthedocs.org/.
