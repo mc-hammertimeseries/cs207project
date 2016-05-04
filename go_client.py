@@ -64,7 +64,7 @@ def main():
     #in this version, select has sprouted an additional keyword argument
     # to allow for sorting. Limits could also be enforced through this.
     print('---------ADDITIONAL------------')
-    client.select(additional={'sort_by': '-order'})
+    print(client.select(additional={'sort_by': '-order'}))
 
     print('----------ORDER FIELD-----------')
     _, results = client.select(fields=['order'])
