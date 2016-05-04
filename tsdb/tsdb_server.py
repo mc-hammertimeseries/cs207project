@@ -69,7 +69,7 @@ class TSDBProtocol(asyncio.Protocol):
         trigger_target = op['target']  # if provided, this meta will be upserted
         trigger_arg = op['arg']  # an additional argument, could be a constant
         try:
-            mod = import_module('.' + trigger_proc, 'procs')
+            mod = import_module('procs.' + trigger_proc)
             storedproc = getattr(mod, 'main')
             self.server.triggers[trigger_onwhat].append(
                 (trigger_proc, storedproc, trigger_arg, trigger_target))

@@ -70,3 +70,6 @@ def test_ast():
     sys.stdout = mystdout = StringIO()
     test_2.ast.pprint()
     assert mystdout.getvalue() == ast_example_2
+
+    # Put back
+    sys.stdout = old_stdout

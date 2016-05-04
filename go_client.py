@@ -116,7 +116,7 @@ def main():
     # you can do this in local code
     # Step 2: find all time series within 2*d(query, nearest_vp_to_query)
     #this is an augmented select to the same proc in correlation
-    # nearestwanted = client.augmented_select('corr', ['d_vp-1'], arg=query, 
+    # nearestwanted = client.augmented_select('corr', ['d_vp-1'], arg=query,
     #     metadata_dict={'d_vp-1': {'<=': 2.0*min_dist}}, additional={'sort_by': '+d_vp-1', 'limit': 10})
     nearestwanted = client.select(fields=['d_vp-1'], metadata_dict={'d_vp-1': {'<=': 2.0*min_dist}}, additional={'sort_by': '+d_vp-1', 'limit': 10})
     print(nearestwanted)

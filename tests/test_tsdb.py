@@ -8,36 +8,28 @@ from multiprocessing import Process
 identity = lambda x: x
 
 schema = {
-    'pk': {'convert': identity,
-           'index': None},  # will be indexed anyways
-    'ts': {'convert': identity,
-           'index': None},
-    'order': {'convert': int,
-              'index': 1},
-    'blarg': {'convert': int,
-              'index': 1},
-    'useless': {'convert': identity,
-                'index': None},
-    'mean': {'convert': float,
-             'index': 1},
-    'std': {'convert': float,
-            'index': 1},
-    'vp': {'convert': bool,
-           'index': 1}
+    'pk': {'convert': identity, 'index': None},  # will be indexed anyways
+    'ts': {'convert': identity, 'index': None},
+    'order': {'convert': int, 'index': 1},
+    'blarg': {'convert': int, 'index': 1},
+    'useless': {'convert': identity, 'index': None},
+    'mean': {'convert': float, 'index': 1},
+    'std': {'convert': float, 'index': 1},
+    'vp': {'convert': bool, 'index': 1}
 }
 
 orders = [0, 1, 1, 2]
 blargs = [1, 1, 2, 2]
-times = [0, 1, 2, 3, 4]  # Same times
+times = [0, 1, 2, 3, 4]  # Same time basis
 values1 = [0, 2, 4, 6, 8]  # Two example time series values
 values2 = [2, 4, 6, 8, 10]
-vps = np.array([True, False, False, True])  # Vantage points for first and last timeseries
+vps = [True, False, False, True]  # Vantage points for first and last timeseries
 
-
-def test_setup():
+def setup_module(module):
     # Extend schema
-    for i in vps.nonzero():
-        schema["d_vp-{}".format(i)] = {'convert': float, 'index': 1}
+    for i in range(4):
+        if vps[i]:
+            schema["d_vp-{}".format(i)] = {'convert': float, 'index': 1}
 
     # Make db
     db = DictDB(schema, 'pk')
@@ -58,31 +50,39 @@ def test_setup():
 
 
 def test_trigger():
-    # Test add:
+    print('trigger', client)
+    # Test adding
     client.add_trigger('junk', 'insert_ts', None, 'db:one:ts')
     client.add_trigger('stats', 'insert_ts', ['mean', 'std'], None)
 
     # Set vantage point trigger for selected timeseries:
-    for i in vps.nonzero():
-        client.add_trigger('corr', 'insert_ts', ["d_vp-{}".format(i)],
-                           'ts-{}'.format(i))
+    for i in range(4):
+        if vps[i]:
+            client.add_trigger('corr', 'insert_ts', ["d_vp-{}".format(i)],
+                               'ts-{}'.format(i))
 
-    # Test remove:
+    # Test remove
     client.remove_trigger('junk', 'insert_ts')
 
 
-# def test_insert_upsert():
-#     for i in range(4):
-#         pk = 'ts-{}'.format(i)
-#         meta = {'order': orders[i], 'blarg': blargs[i], 'vp': vps[i]}
-#
-#         # Assign values1 up to pk == 2, else values2 for test purposes
-#         ts = TimeSeries(times, values1 if i < 2 else values2)
-#
-#         # Perform test
-#         client.insert_ts(pk, ts)
-#         client.upsert_meta(pk, meta)
-#     print('Got upserts')
+def test_insert_upsert():
+    print('insert', client)
+    for i in range(4):
+        pk = 'ts-{}'.format(i)
+        meta = {'order': orders[i], 'blarg': blargs[i], 'vp': vps[i]}
+        print(meta)
+
+        # Assign one of two artificial time series we created
+        ts = TimeSeries(times, values1 if i < 2 else values2)
+
+        # Trigger a corr when vp is enabled
+        if vps[i]:
+            client.add_trigger('corr', 'insert_ts', ["d_vp-{}".format(i)], pk)
+
+        # Perform test
+        client.insert_ts(pk, ts)
+        client.upsert_meta(pk, meta)
+    print('Got upserts')
 
 # def test_select():
 #     print('---------DEFAULT------------')
@@ -124,6 +124,6 @@ def test_augmented_select():
     pass
 
 
-def test_quit():
+def teardown_module(module):
     server.quit()
     server_process.terminate()
