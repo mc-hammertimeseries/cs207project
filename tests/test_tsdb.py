@@ -2,6 +2,7 @@ from ..tsdb import TSDBClient, TSDBServer, DictDB
 from timeseries import TimeSeries
 from collections import OrderedDict
 from multiprocessing import Process
+import numpy as np
 import pytest
 import time
 
@@ -167,7 +168,7 @@ def test_augmented_select():
 
     # Get distance to vantage point 0
     result = client.select({'pk': 'ts-query'},fields=['d_vp-0'])[1]['ts-query']
-    assert result == OrderedDict([('d_vp-0', 0.5835690085252777)])
+    assert np.isclose(result['d_vp-0'], 0.5835690085252777)
 
 def teardown_module(module):
     server.quit()
