@@ -155,12 +155,19 @@ def test_select():
     result_check = OrderedDict([('ts-2', OrderedDict([('std', 2.8284271247461903), ('blarg', 2)]))])
     assert results[0] == 0
     for k, v in results[1].items():
-        assert v == result_check[k]
+        for field, fieldvalue in v.items():
+            assert fieldvalue == result_check[k][field]
 
 
 def test_augmented_select():
-    pass
+    # Run query
+    values3 = [0.0, 4.0, 16.0, 36.0, 64.0]
+    ts = TimeSeries(times, values3)
+    client.insert_ts('ts-query', ts)
 
+    # Get distance to vantage point 0
+    result = client.select({'pk': 'ts-query'},fields=['d_vp-0'])[1]['ts-query']
+    assert result == OrderedDict([('d_vp-0', 0.5835690085252777)])
 
 def teardown_module(module):
     server.quit()
