@@ -1,0 +1,7 @@
+[report]
+omit =
+    *__init__*
+    go_client.py
+    go_server.py
+    driver.py
+    docs/conf.py
