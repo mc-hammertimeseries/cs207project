@@ -18,6 +18,6 @@ install:
     - pip install coveralls
     - pip install ply
 script:
-    - python -m pytest --doctest-modules --cov-report term-missing --cov . --ignore driver.py --ignore test-requirements.txt --ignore go_client.py --ignore go_server.py -vrw
+    - python -m pytest --doctest-modules --cov-report term-missing --cov . --ignore driver.py --ignore test-requirements.txt --ignore go_client.py --ignore go_server.py --ignore rest_api.py -vrw
 after_success:
     - coveralls
