@@ -1,38 +1,86 @@
+from tornado import httpserver
+from tornado import gen
+from tornado.httpclient import AsyncHTTPClient
+from tornado.ioloop import IOLoop
+import tornado.web
+import tornado.escape
 from tsdb import TSDBClient
+from tsdb.tsdb_error import TSDBStatus
 import timeseries as ts
-from flask import Flask, jsonify, abort, request, make_response, url_for
-from multiprocessing import Process, Queue
+from urllib.parse import urlparse, parse_qs
 
-app = Flask(__name__)
-client_process = TSDBClient()
+def json_error(handler, code, reason):
+    handler.set_status(code)
+    handler.finish({"reason":reason})    
 
-def api_helper(t):
-    q = Queue()
-    p = Process(target=t, args=(q,))
-    p.start()
-    res = q.get()
-    p.join()
-    return res
+class TimeSeriesHandler(tornado.web.RequestHandler):
+    def post(self):
+        if not self.request.body:
+            json_error(self, 400, reason="Missing data required.")
+            return
+        request = tornado.escape.json_decode(self.request.body)
+        if 't' not in request:
+            json_error(self, 400, reason="Missing times data required.")
+            return
+        if 'v' not in request:
+            json_error(self, 400, reason="Missing values data required.")
+            return
+        if 'pk' not in request:
+            json_error(self, 400, reason="Missing pk data required.")
+            return
+        if type(request['pk']) != str:
+            json_error(self, 400, reason="pk must be a string.")
+            return
+        try:
+            new_ts = ts.TimeSeries(request['t'], request['v'])
+            res = client.insert_ts(request['pk'], new_ts)
+            self.write({"Status": TSDBStatus(res[0]).name})
+        except BaseException as e:
+            json_error(self, 400, reason=str(e))
+            
+    def get(self):
+        o = urlparse(self.request.uri)
+        query = parse_qs(o.query)
+        additional = {}
 
-@app.route('/api/timeseries', methods=['POST'])
-def create_task():
-    return api_helper(proc_create_task)
-    
-def proc_create_task(q):
-    if not request.json:
-        return jsonify({'error': 'Missing json request data.'}), 400
-    if 't' not in request.json:
-        return jsonify({'error': 'Missing time data required.'}), 400
-    if 'v' not in request.json:
-        return jsonify({'error': 'Missing value data required.'}), 400
-    if 'pk' not in request.json:
-        return jsonify({'error': 'Missing pk value required.'}), 400
+        if 'limit' in query and len(query['limit']) == 1:
+            additional['limit'] = query.pop('limit')[0]
+        if 'sort_by' in query and len(query['sort_by']) == 1:
+            additional['sort_by'] = query.pop('sort_by')[0]
+            order = "+"
+            if 'sort_by_increasing' in query and len(query['sort_by_increasing']) == 1:
+                increasing_order = query.pop('sort_by_increasing')[0].lower()
+                if increasing_order == "false" or increasing_order == "0":
+                    order = "-"
+            additional['sort_by'] = order + additional['sort_by']
+        if len(additional) == 0:
+            additional = None
+        
+        fields = []
+        if 'fields' in query:
+            fields = query.pop('fields')
+            
+        print(fields)
+        print(additional)
+        
+        try:
+            #new_ts = ts.TimeSeries(request['t'], request['v'])
+            #res = client.insert_ts(request['pk'], new_ts)
+            self.write({"Status": True})
+        except BaseException as e:
+            json_error(self, 400, reason=str(e))
 
-    new_ts = ts.TimeSeries(request.json['t'], request.json['v'])
-    res = client.insert_ts(request.json['pk'], new_ts)
-    print(res)
-    resp = jsonify({'success': True}), 201
-    q.put(resp)
+class Application(tornado.web.Application):
+    def __init__(self):
+        handlers = [
+            (r"/api/timeseries", TimeSeriesHandler)
+        ]
+        tornado.web.Application.__init__(self, handlers)
+
+
+app = Application()
+client = TSDBClient()
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.listen(5000)
+    IOLoop.current().start()
