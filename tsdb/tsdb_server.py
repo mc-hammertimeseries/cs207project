@@ -30,6 +30,10 @@ class TSDBProtocol(asyncio.Protocol):
             return TSDBOp_Return(TSDBStatus.INVALID_KEY, op['op'])
         self._run_trigger('insert_ts', [op['pk']])
         return TSDBOp_Return(TSDBStatus.OK, op['op'])
+    
+    def _delete_ts(self, op):
+        self.server.db.delete_ts(op['pk'])
+        return TSDBOp_Return(TSDBStatus.OK, op['op'])
 
     def _upsert_meta(self, op):
         self.server.db.upsert_meta(op['pk'], op['md'])
@@ -61,7 +65,7 @@ class TSDBProtocol(asyncio.Protocol):
             row = self.server.db.rows[pk]
             result = storedproc(pk, row, arg)
             results.append(dict(zip(target, result)))
-        return TSDBOp_Return(TSDBStatus.OK, op['op'], dict(zip(loids, results)))
+        return TSDBOp_Return(TSDBStatus.OK, op['op'], OrderedDict(zip(loids, results)))
 
     def _add_trigger(self, op):
         trigger_proc = op['proc']  # the module in procs
@@ -117,6 +121,8 @@ class TSDBProtocol(asyncio.Protocol):
             if status is TSDBStatus.OK:
                 if isinstance(op, TSDBOp_InsertTS):
                     response = self._insert_ts(op)
+                elif isinstance(op, TSDBOp_DeleteTS):
+                    response = self._delete_ts(op)
                 elif isinstance(op, TSDBOp_UpsertMeta):
                     response = self._upsert_meta(op)
                 elif isinstance(op, TSDBOp_Select):
