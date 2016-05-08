@@ -24,6 +24,7 @@ class TSDBProtocol(asyncio.Protocol):
         self.futures = []
 
     def _insert_ts(self, op):
+
         try:
             self.server.db.insert_ts(op['pk'], op['ts'])
         except ValueError as e:
@@ -115,23 +116,46 @@ class TSDBProtocol(asyncio.Protocol):
             except TypeError as e:
                 response = TSDBOp_Return(TSDBStatus.INVALID_OPERATION, None)
             if status is TSDBStatus.OK:
+                backup = self.server.db
+                backup_triggers = self.server.triggers
                 if isinstance(op, TSDBOp_InsertTS):
-                    response = self._insert_ts(op)
+                    try:
+                        response = self._insert_ts(op)
+                    except Exception as e:
+                        print('Could not complete insertion. Reverting to last transaction.')
+                        self.server.db = backup
                 elif isinstance(op, TSDBOp_UpsertMeta):
-                    response = self._upsert_meta(op)
+                    try:
+                        response = self._upsert_meta(op)
+                    except Exception as e:
+                        print('Could not complete upsertion. Reverting to last transaction.')
+                        self.server.db = backup
                 elif isinstance(op, TSDBOp_Select):
-                    response = self._select(op)
+                    try:
+                        response = self._select(op)
+                    except Exception as e:
+                        print('Could not complete selection.')
                 elif isinstance(op, TSDBOp_AugmentedSelect):
-                    response = self._augmented_select(op)
+                    try:
+                        response = self._augmented_select(op)
+                    except Exception as e:
+                        print('Could not complete augmented selection.')
                 elif isinstance(op, TSDBOp_AddTrigger):
-                    response = self._add_trigger(op)
+                    try:
+                        response = self._add_trigger(op)
+                    except Exception as e:
+                        print('Could not complete trigger addition. Reverting to last transaction.')
+                        self.server.triggers = backup_triggers
                 elif isinstance(op, TSDBOp_RemoveTrigger):
-                    response = self._remove_trigger(op)
+                    try:
+                        response = self._remove_trigger(op)
+                    except Exception as e:
+                        print('Could not complete trigger removal. Reverting to last transaction.')
+                        self.server.triggers = backup_triggers
                 else:
                     response = TSDBOp_Return(TSDBStatus.UNKNOWN_ERROR, op['op'])
             self.conn.write(serialize(response.to_json()))
             self.conn.close()
-
     def connection_lost(self, transport):
         "callbackfor when the client closes the connection"
         print('S> connection lost')
