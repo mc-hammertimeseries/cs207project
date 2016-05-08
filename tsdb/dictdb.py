@@ -142,10 +142,10 @@ class DictDB:
             matchedfielddicts.append(field_dic)
         # additional filters
         if additional is not None:
+            results = list(zip(pks, [self.rows[p] for p in pks]))
             if 'sort_by' in additional:
                 sortfield = additional['sort_by'][1:]
                 direction = additional['sort_by'][0]
-                results = list(zip(pks, [self.rows[p] for p in pks]))
                 if direction == '+':
                     results.sort(key=lambda x: x[1][sortfield])
                 else:

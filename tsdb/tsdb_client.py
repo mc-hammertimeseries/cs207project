@@ -18,7 +18,7 @@ class TSDBClient(object):
     def delete_ts(self, primary_key):
         op = TSDBOp_DeleteTS(primary_key)
         serialized_json = serialize(op.to_json())
-        self._send(serialized_json)
+        return self._send(serialized_json)
 
     def upsert_meta(self, primary_key, metadata_dict):
         op = TSDBOp_UpsertMeta(primary_key, metadata_dict)
@@ -31,7 +31,6 @@ class TSDBClient(object):
         return self._send(serialized_json)
 
     def augmented_select(self, proc, target, arg=None, metadata_dict={}, additional=None):
-        print('*** C> aug select')
         op = TSDBOp_AugmentedSelect(proc, target, arg, metadata_dict, additional)
         serialized_json = serialize(op.to_json())
         return self._send(serialized_json)
