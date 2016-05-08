@@ -31,10 +31,6 @@ class TSDBProtocol(asyncio.Protocol):
         self._run_trigger('insert_ts', [op['pk']])
         return TSDBOp_Return(TSDBStatus.OK, op['op'])
 
-    def _delete_ts(self, op):
-        self.server.db.delete_ts(op['pk'])
-        return TSDBOp_Return(TSDBStatus.OK, op['op'])
-
     def _upsert_meta(self, op):
         self.server.db.upsert_meta(op['pk'], op['md'])
         self._run_trigger('upsert_meta', [op['pk']])
@@ -59,11 +55,11 @@ class TSDBProtocol(asyncio.Protocol):
         # return results in a dictionary with the targets mapped to the return
         # values from proc_main
         mod = import_module('procs.' + proc)
-        storedproc = getattr(mod, 'proc_main')
+        storedproc = getattr(mod, 'main')
         results = []
         for pk in loids:
             row = self.server.db.rows[pk]
-            result = storedproc(pk, row, arg)
+            task = asyncio.ensure_future(storedproc(pk, row, arg))
             results.append(dict(zip(target, result)))
         return TSDBOp_Return(TSDBStatus.OK, op['op'], dict(zip(loids, results)))
 
@@ -121,8 +117,6 @@ class TSDBProtocol(asyncio.Protocol):
             if status is TSDBStatus.OK:
                 if isinstance(op, TSDBOp_InsertTS):
                     response = self._insert_ts(op)
-                elif isinstance(op, TSDBOp_DeleteTS):
-                    response = self._delete_ts(op)
                 elif isinstance(op, TSDBOp_UpsertMeta):
                     response = self._upsert_meta(op)
                 elif isinstance(op, TSDBOp_Select):
@@ -164,13 +158,17 @@ class TSDBServer(object):
         try:
             loop.run_forever()
         except KeyboardInterrupt:
-            print('S> Exiting')
+            print('S> Exiting.')
         except Exception as e:
             print('S> Exception:', e)
         finally:
             listener.close()
             loop.close()
 
+    def quit(self):
+        print('S> Exiting.')
+        loop = asyncio.get_event_loop()
+        loop.close()
 
 if __name__ == '__main__':
     empty_schema = {'pk': {'convert': lambda x: x, 'index': None}}
