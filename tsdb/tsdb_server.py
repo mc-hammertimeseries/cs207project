@@ -59,11 +59,12 @@ class TSDBProtocol(asyncio.Protocol):
         # return results in a dictionary with the targets mapped to the return
         # values from proc_main
         mod = import_module('procs.' + proc)
-        storedproc = getattr(mod, 'proc_main')
+        storedproc = getattr(mod, 'main')
         results = []
         for pk in loids:
             row = self.server.db.rows[pk]
             result = storedproc(pk, row, arg)
+            print('*** S>', type(result))
             results.append(dict(zip(target, result)))
         return TSDBOp_Return(TSDBStatus.OK, op['op'], dict(zip(loids, results)))
 

@@ -31,6 +31,7 @@ class TSDBClient(object):
         return self._send(serialized_json)
 
     def augmented_select(self, proc, target, arg=None, metadata_dict={}, additional=None):
+        print('*** C> aug select')
         op = TSDBOp_AugmentedSelect(proc, target, arg, metadata_dict, additional)
         serialized_json = serialize(op.to_json())
         return self._send(serialized_json)
