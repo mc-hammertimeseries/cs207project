@@ -11,7 +11,7 @@ import time
 identity = lambda x: x
 
 schema = {
-    'pk': {'convert': identity, 'index': None},  # will be indexed anyways
+    'pk': {'convert': identity, 'index': None},
     'ts': {'convert': identity, 'index': None},
     'order': {'convert': int, 'index': 1},
     'blarg': {'convert': int, 'index': 1},
@@ -84,6 +84,11 @@ def test_insert_upsert():
         # Perform test
         client.insert_ts(pk, ts)
         client.upsert_meta(pk, meta)
+
+def test_delete():
+    client.insert_ts('test', TimeSeries(times, values1))
+    client.delete_ts('test')
+
 
 def test_select():
     # Select all

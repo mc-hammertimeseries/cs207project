@@ -6,8 +6,6 @@ from collections import OrderedDict
 # These are a little clunky (extensibility is meh), but it does provide strong
 # typing for TSDB ops and a straightforward mechanism for conversion to/from
 # JSON objects.
-
-
 class TSDBOp(dict):
 
     def __init__(self, op):
@@ -61,6 +59,17 @@ class TSDBOp_InsertTS(TSDBOp):
     @classmethod
     def from_json(cls, json_dict):
         return cls(json_dict['pk'], TimeSeries(*(json_dict['ts'])))
+
+
+class TSDBOp_DeleteTS(TSDBOp):
+
+    def __init__(self, pk):
+        super().__init__('delete_ts')
+        self['pk'] = pk
+
+    @classmethod
+    def from_json(cls, json_dict):
+        return cls(json_dict['pk'])
 
 
 class TSDBOp_Return(TSDBOp):
@@ -149,6 +158,7 @@ class TSDBOp_RemoveTrigger(TSDBOp):
 # This simplifies reconstructing TSDBOp instances from network data.
 typemap = {
     'insert_ts': TSDBOp_InsertTS,
+    'delete_ts': TSDBOp_DeleteTS,
     'upsert_meta': TSDBOp_UpsertMeta,
     'select': TSDBOp_Select,
     'augmented_select': TSDBOp_AugmentedSelect,

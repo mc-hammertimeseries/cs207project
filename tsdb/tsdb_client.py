@@ -6,7 +6,7 @@ import json
 
 
 class TSDBClient(object):
-    "client"
+
     def __init__(self, port=9999):
         self.port = port
 
@@ -14,6 +14,11 @@ class TSDBClient(object):
         op = TSDBOp_InsertTS(primary_key, ts)
         serialized_json = serialize(op.to_json())
         return self._send(serialized_json)
+
+    def delete_ts(self, primary_key):
+        op = TSDBOp_DeleteTS(primary_key)
+        serialized_json = serialize(op.to_json())
+        self._send(serialized_json)
 
     def upsert_meta(self, primary_key, metadata_dict):
         op = TSDBOp_UpsertMeta(primary_key, metadata_dict)

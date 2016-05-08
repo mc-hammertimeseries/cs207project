@@ -39,15 +39,23 @@ class DictDB:
                 self.indexes[s] = defaultdict(set)
 
     def insert_ts(self, pk, ts):
+        "given a pk and a timeseries, insert them"
         if type(pk) != str:
             raise TypeError('Primary key must be string')
-        "given a pk and a timeseries, insert them"
         if pk not in self.rows:
             self.rows[pk] = {'pk': pk}
         else:
             raise ValueError('Duplicate primary key found during insert')
         self.rows[pk]['ts'] = ts
         self.update_indices(pk)
+
+    def delete_ts(self, pk):
+        if type(pk) != str:
+            raise TypeError('Primary key must be string')
+        if pk in self.rows:
+            del self.rows[pk]
+        else:
+            raise ValueError('Primary key is not in database')
 
     def upsert_meta(self, pk, meta):
         if type(pk) != str:
@@ -68,12 +76,17 @@ class DictDB:
             self.update_indices(pkid)
 
     def update_indices(self, pk):
-        row = self.rows[pk]
-        for field in row:
-            v = row[field]
-            if self.schema[field]['index'] is not None:
-                idx = self.indexes[field]
-                idx[v].add(pk)
+        if pk in self.rows:
+            row = self.rows[pk]
+            for field in row:
+                v = row[field]
+                if self.schema[field]['index'] is not None:
+                    idx = self.indexes[field]
+                    idx[v].add(pk)
+        # else:
+        #     for k, v in self.indexes.items():
+        #         if pk in v:
+        #             del v[pk]
 
     def select(self, meta, fields, additional):
         # if fields is None: return only pks
