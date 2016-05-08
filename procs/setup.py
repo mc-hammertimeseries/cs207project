@@ -1,10 +1,12 @@
 from distutils.core import setup, Extension
-from Cython.Build import cythonize
+# from Cython.Build import cythonize
 import numpy
+
+sourcefiles = ["fft.pyx"]
 
 setup(
     ext_modules=[
-        Extension("fft", ["fft.c"],
+        Extension("fft", sourcefiles,
                   include_dirs=[numpy.get_include()]),
     ],
 )

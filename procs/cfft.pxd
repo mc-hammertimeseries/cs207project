@@ -1,4 +1,4 @@
-ctypedef double double_c[2]
+# Function declarations from fftw.
 
 cdef extern from "fftw3.h":
 	ctypedef struct fftw_plan_struct:
