@@ -40,7 +40,8 @@ class DocDB:
                 else: 
                     self.indices[s] = defaultdict(list) # dictionary for strings and booleans
     
-    def _deserialize_ts(self, filepath):
+    def _load_ts(self, pk):
+        filepath = 'documents/ts/' + pk + '.json'
         with open(filepath, 'r+') as f:
             time_series = json.load(f)
         time_series['ts'] = TimesSeries(*time_series['ts'])
@@ -57,7 +58,7 @@ class DocDB:
             json.dump(ts, f)
             
     def _insert_into_index(self, pk, metakey, metaval):
-        if schema[metakey]['type'] != 'str' and schema[metakey]['type'] != 'bool': # numeric
+        if self.schema[metakey]['type'] != 'str' and self.schema[metakey]['type'] != 'bool': # numeric
             bpt = self.indices[metakey]
             if metaval not in bpt:
                 self.indices[metakey].insert(metaval,[pk])
@@ -78,6 +79,50 @@ class DocDB:
             self._insert_into_index(pk, m, meta[m])
 
     def select(self, meta, fields, additional):
+        # first select ts from db
+        local_pks, local_matchedfielddicts = self.db.select(meta, fields, additional)
+        # then select ts from disk:
+        disk_pks = []
+        for m in meta:
+            if self.schema[m]['type'] != 'str' and self.schema[m]['type'] != 'bool': # numeric
+                bpt = self.indices[m]
+                disk_pks.append(set(bpt.get(meta[m])))
+            else: # string or bool
+                disk_pks.append(set(self.indices[m][meta[m]]))
+
+        disk_pks = [k for k in set.intersection(*disk_pks) if k not in local_pks]
+
+        disk_matchedfielddicts = []
+        disk_allfieldsdicts = []
+        for pk in disk_pks:
+            ts_dict = self._load_ts(pk)
+            disk_allfieldsdicts.append(ts_dict)
+            if len(fields) == 0: # fields is []
+                disk_matchedfielddicts.append(ts_dict)
+            elif fields is None: # fields is None
+                disk_matchedfielddicts.append({})
+            else: 
+                disk_matchedfielddicts.append({f: ts_dict[f] for f in fields})
+
+        pks = local_pks.append(disk_pks)
+        matchedfielddicts = local_matchedfielddicts.append(disk_matchedfielddicts)
+
+        if additional is not None:
+            results = list(zip(pks, [self.db.rows[p] for p in local_pks].append(disk_allfieldsdicts)))
+            if 'sort_by' in additional:
+                sortfield = additional['sort_by'][1:]
+                direction = additional['sort_by'][0]
+                if direction == '+':
+                    results.sort(key=lambda x: x[1][sortfield])
+                else:
+                    results.sort(key=lambda x: -x[1][sortfield])
+            if 'limit' in additional:
+                results = results[:additional['limit']]
+            results_pks = list(map(lambda x: x[0], results))
+            actual_results = dict(zip(pks, matchedfielddicts))
+            return results_pks, [actual_results[pk] for pk in results_pks]
+        return pks, matchedfielddicts
+
 
         # load relevant files 
             # if not already in dictDB, add them
