@@ -2,6 +2,7 @@ import numpy.fft as nfft
 import numpy as np
 import timeseries as ts
 from scipy.stats import norm
+from .fft import fft
 
 def tsmaker(m, s, j):
     meta={}
@@ -20,10 +21,19 @@ def stand(x, m, s):
     return (x-m)/s
 
 def ccor(ts1, ts2):
+    """
+    Given two standardized time series, compute their cross-correlation using FFT.
+    """
     v1 = ts1.values()
     v2 = ts2.values()
-    "given two standardized time series, compute their cross-correlation using FFT"
-    return nfft.ifft(nfft.fft(v1)*np.conj(nfft.fft(v2)))
+    N = len(v1)
+    out_arr = np.empty(N, dtype=complex)
+    fft.fft_ccor(np.array(v1, dtype=complex),
+        np.array(v2, dtype=complex),
+        out_arr)
+
+    # out_arr is in order [0, N-1, N-2, ..., 1], so reorder it.
+    return out_arr[[0] + list(range(len(out_arr)-1, 0, -1))]
 
 
 def max_corr_at_phase(ts1, ts2):

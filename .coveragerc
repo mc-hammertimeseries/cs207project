@@ -5,3 +5,7 @@ omit =
     go_server.py
     driver.py
     docs/conf.py
+    procs/fft/*
+
+exclude_lines = 
+    if __name__ == .__main__.:
