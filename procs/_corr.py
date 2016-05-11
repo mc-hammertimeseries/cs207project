@@ -33,7 +33,7 @@ def ccor(ts1, ts2):
         out_arr)
 
     # out_arr is in order [0, N-1, N-2, ..., 1], so reorder it.
-    return out_arr[[0] + list(range(len(out_arr)-1, 0, -1))]
+    return np.array(out_arr[[0] + list(range(len(out_arr)-1, 0, -1))], dtype=float)
 
 
 def max_corr_at_phase(ts1, ts2):

@@ -4,8 +4,6 @@ python:
 
 before_install:
     # Install fftw3
-    # - apt-get install -y libfftw3-3
-    # - apt-get install -y libfftw3-dev
     - bash install_fftw.sh
 
 install:
