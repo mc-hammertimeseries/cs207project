@@ -1,5 +1,6 @@
 from ..tsdb import TSDBClient, TSDBServer, DictDB
 from timeseries import TimeSeries
+from procs import _corr
 from collections import OrderedDict
 from multiprocessing import Process
 import os
@@ -174,3 +175,24 @@ def test_augmented_select():
 
 def teardown_module(module):
     os.kill(server_process.pid, signal.SIGINT)
+
+def test_corr():
+    """
+    Test cross-correlation functions.
+    """
+
+    arr_1 = np.linspace(1, 0, 50, dtype=complex)
+    arr_2 = np.arange(0, 50, dtype=complex)
+    ts_1 = TimeSeries(arr_2, arr_1)
+    ts_2 = TimeSeries(arr_2, arr_2)
+    out_arr = _corr.ccor(ts_1, ts_2)
+
+    # Ensure result is consistent with numpy.fft.
+    test_arr = np.fft.ifft(np.fft.fft(ts_1) * np.conj(np.fft.fft(ts_2)))
+    assert np.allclose(out_arr, test_arr)
+
+    # Test max_corr_at_phase using actual precomputed value of maxcorr.
+    idx, maxcorr = _corr.max_corr_at_phase(ts_1, ts_2)
+    assert idx == 25
+    assert np.isclose(maxcorr, 718.87755102040819)
+

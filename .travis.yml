@@ -1,7 +1,15 @@
 language: python
 python:
     - "3.5"
+
+before_install:
+    # Install fftw3
+    # - apt-get install -y libfftw3-3
+    # - apt-get install -y libfftw3-dev
+    - bash install_fftw.sh
+
 install:
+    # Install miniconda
     - wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
     - bash miniconda.sh -b -p $HOME/miniconda
     - export PATH="$HOME/miniconda/bin:$PATH"
@@ -11,13 +19,19 @@ install:
     # Useful for debugging any issues with conda
     - conda info -a
 
-    - conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION numpy scipy
+    - conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION numpy scipy cython
     - source activate test-environment
     - python setup.py install
     - pip install pytest pytest-cov
     - pip install coveralls
     - pip install ply
+
+    # Compile Cython
+    - cd procs/fft
+    - export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HOME/fftw:$HOME/fftw/lib:HOME/fftw/include:$HOME/include
+    - python setup.py build_ext --inplace
+    - cd ../..
 script:
-    - python -m pytest --doctest-modules --cov-report term-missing --cov . --ignore driver.py --ignore test-requirements.txt --ignore go_client.py --ignore go_server.py -vrw
+    - python -m pytest --doctest-modules --cov-report term-missing --cov . --ignore driver.py --ignore test-requirements.txt --ignore go_client.py --ignore go_server.py --ignore procs/fft/ -vrw
 after_success:
     - coveralls
