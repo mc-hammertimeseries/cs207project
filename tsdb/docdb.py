@@ -1,12 +1,11 @@
 from collections import defaultdict, OrderedDict
-from operator import and_
-from functools import reduce
 import operator
 import json
 import os
 import glob
 import pickle
-from . import DictDB, BPlusTree
+from . import DictDB 
+from . import BPlusTree
 from timeseries import TimeSeries
 
 OPMAP = {
