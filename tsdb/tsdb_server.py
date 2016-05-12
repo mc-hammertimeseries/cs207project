@@ -52,10 +52,30 @@ class TSDBProtocol(asyncio.Protocol):
 
     def _augmented_select(self, op):
         "run a select and then synchronously run some computation on it"
-        loids, fields = self.server.db.select(op['md'], None, op['additional'])
+        
         proc = op['proc']  # the module in procs
         arg = op['arg']  # an additional argument, could be a constant
         target = op['target']  # not used to upsert any more, but rather to
+        
+        # remove md fields corresponding to target since they're calculated afterwards
+        md_target_removed = dict(op['md'])
+        for key in target:
+            md_target_removed.pop(key, None)
+        
+        # use additional only if ordering has nothing to do with target field
+        sort_by_target = None
+        limit = None        
+        
+        additional_target_removed = None if op['additional'] is None else dict(op['additional'])
+        if additional_target_removed is not None and 'sort_by' in additional_target_removed:
+            sort_field = additional_target_removed['sort_by'][1:]
+            if sort_field in target:
+                sort_by_target = additional_target_removed.pop('sort_by', None)
+                limit = additional_target_removed.pop('limit', None)
+        if additional_target_removed is not None and len(additional_target_removed) == 0:
+            additional_target_removed = None
+        
+        loids, fields = self.server.db.select(md_target_removed, None, additional_target_removed)
         # return results in a dictionary with the targets mapped to the return
         # values from proc_main
         mod = import_module('procs.' + proc)
@@ -65,6 +85,18 @@ class TSDBProtocol(asyncio.Protocol):
             row = self.server.db.rows[pk]
             result = storedproc(pk, row, arg)
             results.append(dict(zip(target, result)))
+            
+        # now modify results if sort_by_target
+        if sort_by_target is not None:
+            sort_field = sort_by_target[1:]
+            sort_dir = sort_by_target[0]
+            if sort_dir == "+":
+                results.sort(key=lambda x: x[sort_field])
+            else:
+                results.sort(key=lambda x: -x[sort_field])
+        if limit is not None:
+            results = results[0:limit]
+        
         return TSDBOp_Return(TSDBStatus.OK, op['op'], OrderedDict(zip(loids, results)))
 
     def _add_trigger(self, op):
