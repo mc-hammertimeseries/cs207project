@@ -5,3 +5,5 @@ omit =
     go_server.py
     driver.py
     docs/conf.py
+    setup.py
+    skeleton.py
