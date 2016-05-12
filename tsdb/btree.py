@@ -433,7 +433,56 @@ class BPlusTree(BTree):
             return next(self._get(key))
         except StopIteration:
             return default
-
+    
+    def get_range(self, op, key):
+        results = []
+        # get leaf and index in leaf
+        a,ix = self._path_to(key)[-1]
+        if op == '==':
+            return self.get(key)
+        if op in ['>=','>']:
+            # if index is 5, go to next leaf 
+            if ix == self.order:
+                a = a.next
+                ix = 0
+            try:
+                key_ = a.contents[ix]
+            # if we are over the bounds
+            except AttributeError: 
+                return None
+            # work from key to the end of the leaf
+            ix_ = a.contents.index(key_)
+            results.extend(a.data[ix_:])
+            a = a.next
+            # work from start of next leaf to end of tree 
+            while a:  
+                results.extend(a.data)
+                a = a.next
+            if op == '>':
+                # exclude the first val if the key is in self.keys
+                if key in self.keys():
+                    return results[1:]
+        if op in ['<=','<']:
+            # start at the beginning
+            curr_leaf,_ = self._path_to(bpt.keys()[0])[-1]
+            # get leaf and index for key
+            key_leaf, idx = self._path_to(key)[-1]
+            if op == '<=' and key in bpt.keys():
+                # include next key if we do <=
+                idx += 1
+                # if we're out of bounds for leaf, go to next one
+                if idx == self.order + 1:
+                    key_leaf = key_leaf.next
+                    idx = 1
+            results = []
+            while curr_leaf != key_leaf:
+                # extend results from first element to key leaf
+                results.extend(curr_leaf.data)
+                curr_leaf = curr_leaf.next
+            # add values that on key leaf up to the index
+            results.extend(curr_leaf.data[:idx])
+        return results
+    
     def getlist(self, key):
         return list(self._get(key))
 
@@ -462,15 +511,15 @@ class BPlusTree(BTree):
             node = node.children[0]
 
         while node:
-            for pair in itertools.izip(node.contents, node.data):
+            for pair in zip(node.contents, node.data):
                 yield pair
             node = node.next
 
     def iterkeys(self):
-        return itertools.imap(operator.itemgetter(0), self.iteritems())
+        return map(operator.itemgetter(0), self.iteritems())
 
     def itervalues(self):
-        return itertools.imap(operator.itemgetter(1), self.iteritems())
+        return map(operator.itemgetter(1), self.iteritems())
 
     __iter__ = iterkeys
 

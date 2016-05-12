@@ -84,9 +84,16 @@ class DocDB:
         # then select ts from disk:
         disk_pks = []
         for m in meta:
+            if not isinstance(meta[m], dict):
+                # if just a regular select, we'll still use the get range with == op
+                metakey  = meta[m] 
+                op = '=='
+            else:  # otherwise, get op and metakey
+                metakey, op = meta[m].keys()[0], meta[m][meta[m].keys()[0]]
             if self.schema[m]['type'] != 'str' and self.schema[m]['type'] != 'bool': # numeric
                 bpt = self.indices[m]
-                disk_pks.append(set(bpt.get(meta[m])))
+                # use get_ranges from B+tree and then flatten
+                disk_pks.append(set([item for sublist in bpt.get_ranges(op, metakey) for item in sublist]))
             else: # string or bool
                 disk_pks.append(set(self.indices[m][meta[m]]))
 
@@ -102,7 +109,7 @@ class DocDB:
             elif fields is None: # fields is None
                 disk_matchedfielddicts.append({})
             else: 
-                disk_matchedfielddicts.append({f: ts_dict[f] for f in fields})
+                disk_matchedfielddicts.append({f: ts_dict[f] for f in fields if f != 'ts'})
 
         pks = local_pks.append(disk_pks)
         matchedfielddicts = local_matchedfielddicts.append(disk_matchedfielddicts)
@@ -122,11 +129,6 @@ class DocDB:
             actual_results = dict(zip(pks, matchedfielddicts))
             return results_pks, [actual_results[pk] for pk in results_pks]
         return pks, matchedfielddicts
-
-
-        # load relevant files 
-            # if not already in dictDB, add them
-        # perform query on that dictDB
 
     def commit(self):
         # serialize indices
