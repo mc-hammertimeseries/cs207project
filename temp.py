@@ -46,4 +46,4 @@ tsrs = [TimeSeries(times, values1 if i < 2 else values2) for i in range(4)]  # o
 # 
 # db.commit()
 
-print(db.select())
+print(db.select({'order': {'<=': 2}, 'blarg': {'<': 2}}))

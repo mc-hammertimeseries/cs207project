@@ -129,16 +129,19 @@ class DocDB:
             for m in meta:
                 if not isinstance(meta[m], dict):
                     # if just a regular select, we'll still use the get range with == op
-                    metakey  = meta[m] 
+                    metaval  = meta[m] 
                     op = '=='
-                else:  # otherwise, get op and metakey
-                    metakey, op = meta[m].keys()[0], meta[m][meta[m].keys()[0]]
+                else:  # otherwise, get op and metaval
+                    op, metaval = list(meta[m].keys())[0], meta[m][list(meta[m].keys())[0]]
                 if self.schema[m]['type'] != 'str' and self.schema[m]['type'] != 'bool': # numeric
                     bpt = self.indices[m]
                     # use get_ranges from B+tree and then flatten
-                    disk_pks.append(set([item for sublist in bpt.get_ranges(op, metakey) for item in sublist]))
+                    if op != '==':
+                        disk_pks.append(set([item for sublist in bpt.get_range(op, metaval) for item in sublist]))
+                    else:
+                        disk_pks.append(set(bpt.get_range(op, metaval)))
                 else: # string or bool
-                    disk_pks.append(set(self.indices[m][meta[m]]))
+                    disk_pks.append(set(self.indices[m][metaval]))
                     
             disk_pks = [k for k in set.intersection(*disk_pks) if k not in local_pks]
         disk_matchedfielddicts = []

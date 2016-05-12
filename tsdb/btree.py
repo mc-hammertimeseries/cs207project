@@ -464,10 +464,10 @@ class BPlusTree(BTree):
                     return results[1:]
         if op in ['<=','<']:
             # start at the beginning
-            curr_leaf,_ = self._path_to(bpt.keys()[0])[-1]
+            curr_leaf,_ = self._path_to(self.keys()[0])[-1]
             # get leaf and index for key
             key_leaf, idx = self._path_to(key)[-1]
-            if op == '<=' and key in bpt.keys():
+            if op == '<=' and key in self.keys():
                 # include next key if we do <=
                 idx += 1
                 # if we're out of bounds for leaf, go to next one
