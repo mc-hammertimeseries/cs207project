@@ -4,8 +4,8 @@ import json
 import os
 import glob
 import pickle
-from . import DictDB 
-from btree import BPlusTree
+from . import DictDB
+from . import BPlusTree
 from timeseries import TimeSeries
 
 
@@ -17,7 +17,7 @@ class DocDB:
     and clear out the dictDB. 
     """
 
-    def __init__(self, schema, pkfield):
+    def __init__(self, pkfield, schema=None):
         if schema == None:  # Assume it's on disk
             with open('documents/schema.json', 'r+') as file:
                 self.schema = json.load(file)
