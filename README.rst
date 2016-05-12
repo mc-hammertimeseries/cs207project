@@ -11,7 +11,7 @@ A package for storing and manipulating time series.
 
 ``procs``: Procedures that can be executed on time series stored in the database.
 
-    ``fft``: Cython-wrapped ``fftw`` for fast cross-correlation.
+``fft``: Cython-wrapped ``fftw`` for fast cross-correlation.
 
 ``tests``: Tests for other modules.
 
