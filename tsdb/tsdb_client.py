@@ -6,19 +6,34 @@ import json
 
 
 class TSDBClient(object):
-    "client"
+
     def __init__(self, port=9999):
         self.port = port
 
     def insert_ts(self, primary_key, ts):
         op = TSDBOp_InsertTS(primary_key, ts)
         serialized_json = serialize(op.to_json())
-        self._send(serialized_json)
+        return self._send(serialized_json)
+
+    def delete_ts(self, primary_key):
+        op = TSDBOp_DeleteTS(primary_key)
+        serialized_json = serialize(op.to_json())
+        return self._send(serialized_json)
 
     def upsert_meta(self, primary_key, metadata_dict):
         op = TSDBOp_UpsertMeta(primary_key, metadata_dict)
         serialized_json = serialize(op.to_json())
-        self._send(serialized_json)
+        return self._send(serialized_json)
+
+    def commit(self):
+        op = TSDBOp_Commit(primary_key, metadata_dict)
+        serialized_json = serialize(op.to_json())
+        return self._send(serialized_json)
+
+    def rollback(self):
+        op = TSDBOp_Rollback(primary_key, metadata_dict)
+        serialized_json = serialize(op.to_json())
+        return self._send(serialized_json)
 
     def select(self, metadata_dict={}, fields=None, additional=None):
         op = TSDBOp_Select(metadata_dict, fields, additional)
@@ -33,12 +48,12 @@ class TSDBClient(object):
     def add_trigger(self, proc, onwhat, target, arg=None):
         op = TSDBOp_AddTrigger(proc, onwhat, target, arg)
         serialized_json = serialize(op.to_json())
-        self._send(serialized_json)
+        return self._send(serialized_json)
 
     def remove_trigger(self, proc, onwhat):
         op = TSDBOp_RemoveTrigger(proc, onwhat)
         serialized_json = serialize(op.to_json())
-        self._send(serialized_json)
+        return self._send(serialized_json)
 
     # Returns status and payload
     async def _send_coro(self, msg, loop):

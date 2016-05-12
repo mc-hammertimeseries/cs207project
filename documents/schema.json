@@ -1,0 +1,1 @@
+{"ts": {"index": null, "type": "ts"}, "blarg": {"index": 1, "type": "int"}, "pk": {"index": null, "type": "str"}, "vp": {"index": 1, "type": "bool"}, "useless": {"index": null, "type": "str"}, "mean": {"index": 1, "type": "float"}, "std": {"index": 1, "type": "float"}, "order": {"index": 1, "type": "int"}}

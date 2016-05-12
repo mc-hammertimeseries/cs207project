@@ -17,7 +17,7 @@ install:
     # Useful for debugging any issues with conda
     - conda info -a
 
-    - conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION numpy scipy cython
+    - conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION numpy scipy cython tornado
     - source activate test-environment
     - python setup.py install
     - pip install pytest pytest-cov
@@ -30,6 +30,6 @@ install:
     - python setup.py build_ext --inplace
     - cd ../..
 script:
-    - python -m pytest --doctest-modules --cov-report term-missing --cov . --ignore driver.py --ignore test-requirements.txt --ignore go_client.py --ignore go_server.py --ignore procs/fft/ -vrw
+    - python -m pytest --doctest-modules --cov-report term-missing --cov . --ignore driver.py --ignore test-requirements.txt --ignore go_client.py --ignore go_server.py --ignore rest_api.py --ignore procs/fft/ -vrw
 after_success:
     - coveralls

@@ -8,11 +8,14 @@ import signal
 import numpy as np
 import pytest
 import time
+from rest_api import Application
+from tornado.ioloop import IOLoop
+import requests
 
 identity = lambda x: x
 
 schema = {
-    'pk': {'convert': identity, 'index': None},  # will be indexed anyways
+    'pk': {'convert': identity, 'index': None},
     'ts': {'convert': identity, 'index': None},
     'order': {'convert': int, 'index': 1},
     'blarg': {'convert': int, 'index': 1},
@@ -55,8 +58,104 @@ def setup_module(module):
 
     # Give it some time to get into shape
     time.sleep(2)
-
-
+    
+    # Start restapi
+    global app
+    global app_process
+    def run_rest():
+        app = Application()
+        app.listen(5000)
+        IOLoop.current().start()
+        
+    app_process = Process(target=run_rest)
+    app_process.start()
+    app_process.join(2)
+    
+def test_rest_api():
+    # test pk error
+    resp = requests.post("http://localhost:5000/api/timeseries", json = {'t':list(range(1,10)), 'v':list(range(101,110))}).json()
+    # test incorrect inputs
+    assert resp == {'reason': 'Missing pk data required.'}
+    resp = requests.post("http://localhost:5000/api/timeseries", json = {'pk':1, 'v':list(range(101,110))}).json()
+    assert resp == {'reason': 'Missing times data required.'}
+    resp = requests.post("http://localhost:5000/api/timeseries", json = {'pk':1, 't':list(range(101,110))}).json()
+    assert resp == {'reason': 'Missing values data required.'}
+    resp = requests.post("http://localhost:5000/api/timeseries").json()
+    assert resp == {'reason': 'Missing data required.'}
+    resp = requests.post("http://localhost:5000/api/timeseries", json = {'t':list(range(1,10)), 'v':list(range(101,110)), 'pk':1}).json()
+    assert resp == {'reason': 'pk must be a string.'}
+    resp = requests.post("http://localhost:5000/api/timeseries/upsert", json = {'pk':1, 'blarg':123, 'order':1}).json()
+    assert resp == {'reason': 'pk must be a string.'}
+    resp = requests.post("http://localhost:5000/api/timeseries", json = {'t':"wrong", 'v':"wrong", 'pk':"1"}).json()
+    assert resp == {'reason': "could not convert string to float: 'wrong'"}
+    
+    # insert timeseries with pk = 1
+    status = requests.post("http://localhost:5000/api/timeseries", json = {'t':list(range(1,10)), 'v':list(range(101,110)), 'pk':"1"}).json()['Status']
+    assert status == 'OK'
+    # upsert timeseries
+    status = requests.post("http://localhost:5000/api/timeseries/upsert", json = {'pk':"1", 'blarg':123, 'order':1}).json()['Status']
+    assert status == 'OK'
+    # get timeseries
+    payload = requests.get("http://localhost:5000/api/timeseries?field1=pk&value1=1&fields=blarg&fields=order").json()['Payload']
+    assert payload == [['1', {'blarg': 123, 'order': 1}]]
+    
+    payload = requests.get("http://localhost:5000/api/timeseries?field1=order&value1=1&dtype1=int").json()['Payload']
+    assert payload == [['1', {'blarg': 123, 'order': 1, 'pk': '1'}]]
+    # insert second timeseries
+    status = requests.post("http://localhost:5000/api/timeseries", json = {'t':list(range(1,10)), 'v':list(range(1,10)), 'pk':"2"}).json()['Status']
+    assert status == 'OK'
+    # upsert second timeseries
+    status = requests.post("http://localhost:5000/api/timeseries/upsert", json = {'pk':"2", 'blarg':123, 'order':2}).json()['Status']
+    assert status == 'OK'
+    # get similarity search
+    similarity = requests.get("http://localhost:5000/api/timeseries/similarity?pk1=1&sort_by=order&sort_by_increasing=false").json()['Payload']
+    assert similarity == [['2', {'d_vp-1': 0.0}], ['1', {'d_vp-1': 0.0}]]
+    
+    # augmented handler
+    payload = requests.get("http://localhost:5000/api/timeseries/augmented?proc=stats&target=mean&target=std&field1=pk&value1=1").json()['Payload']
+    assert payload == [['1', {'mean': 105.0, 'std': 2.581988897471611}]]
+    payload = requests.get("http://localhost:5000/api/timeseries/augmented?proc=stats&target=mean&target=std&sort_by=order&sort_by_increasing=false").json()['Payload']
+    assert payload == [['2', {'mean': 5.0, 'std': 2.581988897471611}],
+  ['1', {'mean': 105.0, 'std': 2.581988897471611}]]
+    
+    # test limit
+    payload = requests.get("http://localhost:5000/api/timeseries?sort_by=order&sort_by_increasing=false").json()['Payload']
+    assert payload == [['2', {'blarg': 123, 'order': 2, 'pk': '2'}],
+  ['1', {'blarg': 123, 'order': 1, 'pk': '1'}]]
+    payload = requests.get("http://localhost:5000/api/timeseries?sort_by=order&sort_by_increasing=true&limit=1").json()['Payload']
+    assert payload == [['1', {'blarg': 123, 'order': 1, 'pk': '1'}]]
+    payload = requests.get("http://localhost:5000/api/timeseries/augmented?proc=stats&target=mean&target=std&sort_by=order&sort_by_increasing=false&limit=1").json()['Payload']
+    assert payload == [['2', {'mean': 5.0, 'std': 2.581988897471611}]]
+    
+    # improper limit test
+    resp = requests.get("http://localhost:5000/api/timeseries?sort_by=order&sort_by_increasing=true&limit=wrong").json()
+    assert resp == {'reason': "invalid literal for int() with base 10: 'wrong'"}
+    resp = requests.get("http://localhost:5000/api/timeseries/augmented?proc=stats&target=mean&target=std&sort_by=order&sort_by_increasing=false&limit=wrong").json()
+    assert resp == {'reason': "invalid literal for int() with base 10: 'wrong'"}
+    
+    # from and to test
+    payload = requests.get("http://localhost:5000/api/timeseries?sort_by=order&sort_by_increasing=false&field1=order&from1=0&to1=1").json()['Payload']
+    assert payload == [['1', {'blarg': 123, 'order': 1, 'pk': '1'}]]
+    payload = requests.get("http://localhost:5000/api/timeseries/augmented?proc=stats&target=mean&target=std&sort_by=order&sort_by_increasing=false&limit=1&field1=order&from1=0&to1=1").json()['Payload']
+    assert payload == [['1', {'mean': 105.0, 'std': 2.581988897471611}]]
+    payload = requests.get("http://localhost:5000/api/timeseries/similarity?pk1=1&sort_by=order&sort_by_increasing=false&field1=order&value1=1&dtype1=int").json()['Payload']
+    assert payload == [['1', {'d_vp-1': 0.0}]]
+    
+    # delete two timeseries 2, readd with random values
+    status = requests.delete("http://localhost:5000/api/timeseries?pk=2").json()['Status']
+    assert status == 'OK'
+    status = requests.post("http://localhost:5000/api/timeseries", json = {'t':list(range(1,10)), 'v':[1,5,4,3,6,7,9,2,4], 'pk':"2"}).json()['Status']
+    assert status == 'OK'
+    # run similarity
+    payload = requests.get("http://localhost:5000/api/timeseries/similarity?pk1=1&pk2=2&sort_by=d_vp-1&limit=1").json()['Payload']
+    assert payload == [['1', {'d_vp-1': 0.0, 'd_vp-2': 1.414001177691696}]]
+    
+    # delete the timeseries to clean up
+    status = requests.delete("http://localhost:5000/api/timeseries?pk=1").json()['Status']
+    assert status == 'OK'
+    status = requests.delete("http://localhost:5000/api/timeseries?pk=2").json()['Status']
+    assert status == 'OK'
+    
 def test_trigger():
     # Test adding
     client.add_trigger('junk', 'insert_ts', None, 'db:one:ts')
@@ -85,6 +184,11 @@ def test_insert_upsert():
         # Perform test
         client.insert_ts(pk, ts)
         client.upsert_meta(pk, meta)
+
+def test_delete():
+    client.insert_ts('test', TimeSeries(times, values1))
+    client.delete_ts('test')
+
 
 def test_select():
     # Select all
@@ -170,8 +274,9 @@ def test_augmented_select():
     client.insert_ts('ts-query', ts)
 
     # Get distance to vantage point 0
-    result = client.select({'pk': 'ts-query'},fields=['d_vp-0'])[1]['ts-query']
-    assert np.isclose(result['d_vp-0'], 0.5835690085252777)
+    result = client.augmented_select('stats', ['mean', 'std'], metadata_dict={'pk': 'ts-query'})[1]['ts-query']
+    print('*** Result:', result)
+    # assert np.isclose(result['d_vp-0'], 0.5835690085252777)
 
 def teardown_module(module):
     os.kill(server_process.pid, signal.SIGINT)
@@ -195,4 +300,3 @@ def test_corr():
     idx, maxcorr = _corr.max_corr_at_phase(ts_1, ts_2)
     assert idx == 25
     assert np.isclose(maxcorr, 718.87755102040819)
-

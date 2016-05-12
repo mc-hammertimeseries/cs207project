@@ -1,14 +1,16 @@
 from pytest import raises
-# from .. import pype
 import sys
 from io import StringIO
+import numpy as np
 
+from timeseries import TimeSeries
 from ..pype.lexer import lexer
 from ..pype.parser import parser
 from ..pype.ast import *
 from ..pype.semantic_analysis import CheckSingleAssignment, CheckSingleIOExpression, CheckUndefinedVariables
 from ..pype.translate import SymbolTableVisitor, LoweringVisitor
 from ..pype.optimize import *
+from ..pype.pipeline import Pipeline
 
 
 # Load each sample output into a list of strings
@@ -22,7 +24,10 @@ with open('tests/samples/example2.ast') as f:
     ast_example_2 = f.read()
 
 def test_ast():
-    # Define fixture for running examples:
+    """
+    Uses a modified Pipeline to test various pype operations.
+    """
+
     class TestPipeline(object):
         def __init__(self, source):
             with open(source) as f:

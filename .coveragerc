@@ -6,6 +6,9 @@ omit =
     driver.py
     docs/conf.py
     procs/fft/*
+    setup.py
+    skeleton.py
+    parsetab.py
 
 exclude_lines = 
     if __name__ == .__main__.:
