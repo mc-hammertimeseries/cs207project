@@ -133,21 +133,21 @@ class DocDB:
                 else:
                     if not isinstance(meta[m], dict):
                         # if just a regular select, we'll still use the get range with == op
-                        metaval  = meta[m] 
-                        op = '=='
+                        ops, metavals  = ['=='], [meta[m]]
                     else:  # otherwise, get op and metaval
-                        op, metaval = list(meta[m].keys())[0], meta[m][list(meta[m].keys())[0]]
-                    if self.schema[m]['type'] != 'str' and self.schema[m]['type'] != 'bool': # numeric
-                        bpt = self.indices[m]
-                        # use get_ranges from B+tree and then flatten
-                        if op != '==':
-                            disk_pks.append(set([item for sublist in bpt.get_range(op, metaval) for item in sublist]))
-                        else:
-                            disk_pks.append(set(bpt.get_range(op, metaval)))
-                    else: # string or bool
-                        disk_pks.append(set(self.indices[m][metaval]))
-        if len(disk_pks) > 0:
-            disk_pks = [k for k in set.intersection(*disk_pks) if k not in local_pks]
+                        ops, metavals = list(meta[m].keys()), list(meta[m].values())
+                    for op, metaval in zip(ops, metavals): 
+                        if self.schema[m]['type'] != 'str' and self.schema[m]['type'] != 'bool': # numeric
+                            bpt = self.indices[m]
+                            # use get_ranges from B+tree and then flatten
+                            if op != '==':
+                                disk_pks.append(set([item for sublist in bpt.get_range(op, metaval) for item in sublist]))
+                            else:
+                                disk_pks.append(set(bpt.get_range(op, metaval)))
+                        else: # string or bool
+                            disk_pks.append(set(self.indices[m][metaval]))
+            if len(disk_pks) > 0:
+                disk_pks = [k for k in set.intersection(*disk_pks) if k not in local_pks]
         disk_matchedfielddicts = []
         disk_allfieldsdicts = []
         for pk in disk_pks:
@@ -166,7 +166,7 @@ class DocDB:
 
         if additional is not None:
             results = list(zip(pks, [self.db.rows[p]
-                                     for p in local_pks].append(disk_allfieldsdicts)))
+                                     for p in local_pks] + (disk_allfieldsdicts)))
             if 'sort_by' in additional:
                 sortfield = additional['sort_by'][1:]
                 direction = additional['sort_by'][0]

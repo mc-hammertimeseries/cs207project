@@ -231,7 +231,7 @@ class TSSimilarityHandler(tornado.web.RequestHandler):
                             else:
                                 payload[pk] = resp[1][pk]
                     else:
-                        json_error(self, 400, reason="Error occurred on corr calculation for {}.".format(pk))
+                        json_error(self, 400, reason="Error occurred on corr calculation for {}. Payload response: {}".format(pk, resp[1]))
                         return
                 if sort_by is not None:
                     sort_by_field = sort_by[1:]

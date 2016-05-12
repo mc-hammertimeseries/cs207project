@@ -84,15 +84,14 @@ class TSDBProtocol(asyncio.Protocol):
         if additional_target_removed is not None and len(additional_target_removed) == 0:
             additional_target_removed = None
         
-        loids, fields = self.server.db.select(md_target_removed, None, additional_target_removed)
+        loids, fields = self.server.db.select(meta = md_target_removed, fields = ['ts'], additional = additional_target_removed)
         # return results in a dictionary with the targets mapped to the return
         # values from proc_main
         mod = import_module('procs.' + proc)
         storedproc = getattr(mod, 'proc_main')
         results = []
-        for pk in loids:
-            row = self.server.db.rows[pk]
-            result = storedproc(pk, row, arg)
+        for pk, field in zip(loids, fields):
+            result = storedproc(pk, field, arg)
             results.append(dict(zip(target, result)))
             
         # now modify results if sort_by_target
@@ -138,7 +137,10 @@ class TSDBProtocol(asyncio.Protocol):
         for tname, t, arg, target in lot:
             #print("trigger:", tname, "target:",target)
             for pk in rowmatch:
-                row = self.server.db.rows[pk]
+                row = self.server.db.select(meta = {'pk': pk}, fields=[])[1][0]
+                ts = self.server.db.select(meta= {'pk': pk}, fields=['ts'])[1][0]['ts']
+                row['ts'] = ts
+                print(row)
                 task = asyncio.ensure_future(t(pk, row, arg))
                 task.add_done_callback(trigger_callback_maker(
                     pk, target, self.server.db.upsert_meta))
