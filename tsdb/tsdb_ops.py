@@ -73,24 +73,21 @@ class TSDBOp_DeleteTS(TSDBOp):
 
 class TSDBOp_Commit(TSDBOp):
 
-    def __init__(self, pk):
+    def __init__(self):
         super().__init__('commit')
-        self['pk'] = pk
 
     @classmethod
     def from_json(cls, json_dict):
-        return cls(json_dict['pk'])
+        return cls()
 
 class TSDBOp_Rollback(TSDBOp):
 
-    def __init__(self, pk):
+    def __init__(self):
         super().__init__('rollback')
-        self['pk'] = pk
 
     @classmethod
     def from_json(cls, json_dict):
-        return cls(json_dict['pk'])
-
+        return cls()
 
 class TSDBOp_Return(TSDBOp):
 
@@ -184,4 +181,6 @@ typemap = {
     'augmented_select': TSDBOp_AugmentedSelect,
     'add_trigger': TSDBOp_AddTrigger,
     'remove_trigger': TSDBOp_RemoveTrigger,
+    'commit': TSDBOp_Commit,
+    'rollback': TSDBOp_Rollback
 }

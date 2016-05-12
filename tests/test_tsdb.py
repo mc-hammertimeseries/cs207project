@@ -1,4 +1,4 @@
-from ..tsdb import TSDBClient, TSDBServer, DictDB
+from ..tsdb import TSDBClient, TSDBServer, DocDB
 from timeseries import TimeSeries
 from procs import _corr
 from collections import OrderedDict
@@ -12,17 +12,15 @@ from rest_api import Application
 from tornado.ioloop import IOLoop
 import requests
 
-identity = lambda x: x
-
 schema = {
-    'pk': {'convert': identity, 'index': None},
-    'ts': {'convert': identity, 'index': None},
-    'order': {'convert': int, 'index': 1},
-    'blarg': {'convert': int, 'index': 1},
-    'useless': {'convert': identity, 'index': None},
-    'mean': {'convert': float, 'index': 1},
-    'std': {'convert': float, 'index': 1},
-    'vp': {'convert': bool, 'index': 1}
+  'pk': {'type': "str", 'index': None},  #will be indexed anyways
+  'ts': {'type': "str", 'index': None},
+  'order': {'type': "int", 'index': 1},
+  'blarg': {'type': "int", 'index': 1},
+  'useless': {'type': "str", 'index': None},
+  'mean': {'type': "float", 'index': 1},
+  'std': {'type': "float", 'index': 1},
+  'vp': {'type': "bool", 'index': 1}
 }
 
 orders = [0, 3, 1, 2]
@@ -37,10 +35,10 @@ def setup_module(module):
     # Extend schema
     for i in range(4):
         if vps[i]:
-            schema["d_vp-{}".format(i)] = {'convert': float, 'index': 1}
+            schema["d_vp-{}".format(i)] = {'type': "float", 'index': 1}
 
     # Make db
-    db = DictDB(schema, 'pk')
+    db = DocDB('pk', schema)
 
     # Spawn server in seperate process
     global server
@@ -88,13 +86,29 @@ def test_rest_api():
     assert resp == {'reason': 'pk must be a string.'}
     resp = requests.post("http://localhost:5000/api/timeseries", json = {'t':"wrong", 'v':"wrong", 'pk':"1"}).json()
     assert resp == {'reason': "could not convert string to float: 'wrong'"}
-    
+
     # insert timeseries with pk = 1
     status = requests.post("http://localhost:5000/api/timeseries", json = {'t':list(range(1,10)), 'v':list(range(101,110)), 'pk':"1"}).json()['Status']
     assert status == 'OK'
+
+    # rollback and make sure nothing is added
+    status = requests.post("http://localhost:5000/api/rollback").json()['Status']
+    assert status == 'OK'
+
+    resp = requests.get("http://localhost:5000/api/timeseries").json()['Payload']
+    assert resp == []
+
+    # insert timeseries with pk = 1
+    status = requests.post("http://localhost:5000/api/timeseries", json = {'t':list(range(1,10)), 'v':list(range(101,110)), 'pk':"1"}).json()['Status']
+    assert status == 'OK'
+    
     # upsert timeseries
     status = requests.post("http://localhost:5000/api/timeseries/upsert", json = {'pk':"1", 'blarg':123, 'order':1}).json()['Status']
     assert status == 'OK'
+
+    status = requests.post("http://localhost:5000/api/commit").json()['Status']
+    assert status == 'OK'
+
     # get timeseries
     payload = requests.get("http://localhost:5000/api/timeseries?field1=pk&value1=1&fields=blarg&fields=order").json()['Payload']
     assert payload == [['1', {'blarg': 123, 'order': 1}]]
@@ -154,6 +168,9 @@ def test_rest_api():
     status = requests.delete("http://localhost:5000/api/timeseries?pk=1").json()['Status']
     assert status == 'OK'
     status = requests.delete("http://localhost:5000/api/timeseries?pk=2").json()['Status']
+    assert status == 'OK'
+
+    status = requests.post("http://localhost:5000/api/commit").json()['Status']
     assert status == 'OK'
     
 def test_trigger():

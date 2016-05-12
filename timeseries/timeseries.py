@@ -116,7 +116,7 @@ class TimeSeries:
     """
 
     def __init__(self, times, values):
-
+        assert len(times) == len(values), "mismatched times and values lengths"
         self._times = np.array(times, dtype=float)
         self._values = np.array(values, dtype=float)
 
@@ -124,7 +124,6 @@ class TimeSeries:
         return (time in self._times)
 
     def __len__(self):
-        assert len(self._times) == len(self._values), "mismatched times and values lengths"
         return len(self._times)
 
     def __getitem__(self, time):

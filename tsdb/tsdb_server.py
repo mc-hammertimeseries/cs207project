@@ -121,7 +121,7 @@ class TSDBProtocol(asyncio.Protocol):
             return TSDBOp_Return(TSDBStatus.OK, op['op'])
         except:
             print(trigger_proc + ' not found')
-            return TSDBOp_Return(TSDBStatus.INVALID_OPERATION, op['op'])
+            return TSDBOp_Return(TSDBStatus.INVALID_OPERATION, op['op'], str(e))
 
     def _remove_trigger(self, op):
         trigger_proc = op['proc']
@@ -157,57 +157,65 @@ class TSDBProtocol(asyncio.Protocol):
             response = TSDBOp_Return(status, None)  # until proven otherwise.
             try:
                 op = TSDBOp.from_json(msg)
-            except TypeError as e:
-                response = TSDBOp_Return(TSDBStatus.INVALID_OPERATION, None)
+            except Exception as e:
+                response = TSDBOp_Return(TSDBStatus.INVALID_OPERATION, None, str(e))
+                status = TSDBStatus.INVALID_OPERATION
             if status is TSDBStatus.OK:
-                backup = self.server.db
-                backup_triggers = self.server.triggers
                 if isinstance(op, TSDBOp_InsertTS):
                     try:
                         response = self._insert_ts(op)
                     except Exception as e:
                         print('Could not complete insertion. Reverting to last transaction.', e)
-                        self.server.db = backup
-                        response = TSDBOp_Return(TSDBStatus.INVALID_OPERATION, op['op'])
+                        self.server.db.rollback()
+                        response = TSDBOp_Return(TSDBStatus.INVALID_OPERATION, op['op'], str(e))
                 elif isinstance(op, TSDBOp_DeleteTS):
                     try:
                         response = self._delete_ts(op)
                     except Exception as e:
-                        self.server.db = backup
-                        response = TSDBOp_Return(TSDBStatus.INVALID_OPERATION, op['op'])
+                        self.server.db.rollback()
+                        response = TSDBOp_Return(TSDBStatus.INVALID_OPERATION, op['op'], str(e))
                 elif isinstance(op, TSDBOp_UpsertMeta):
                     try:
                         response = self._upsert_meta(op)
                     except Exception as e:
                         print('Could not complete upsertion. Reverting to last transaction.', e)
-                        self.server.db = backup
-                        response = TSDBOp_Return(TSDBStatus.INVALID_OPERATION, op['op'])
+                        self.server.db.rollback()
+                        response = TSDBOp_Return(TSDBStatus.INVALID_OPERATION, op['op'], str(e))
                 elif isinstance(op, TSDBOp_Select):
                     try:
                         response = self._select(op)
                     except Exception as e:
                         print('Could not complete selection.', e)
-                        response = TSDBOp_Return(TSDBStatus.INVALID_OPERATION, op['op'])
+                        response = TSDBOp_Return(TSDBStatus.INVALID_OPERATION, op['op'], str(e))
                 elif isinstance(op, TSDBOp_AugmentedSelect):
                     try:
                         response = self._augmented_select(op)
                     except Exception as e:
                         print('Could not complete augmented selection.', e)
-                        response = TSDBOp_Return(TSDBStatus.INVALID_OPERATION, op['op'])
+                        response = TSDBOp_Return(TSDBStatus.INVALID_OPERATION, op['op'], str(e))
                 elif isinstance(op, TSDBOp_AddTrigger):
                     try:
                         response = self._add_trigger(op)
                     except Exception as e:
                         print('Could not complete trigger addition. Reverting to last transaction.', e)
-                        self.server.triggers = backup_triggers
-                        response = TSDBOp_Return(TSDBStatus.INVALID_OPERATION, op['op'])
+                        response = TSDBOp_Return(TSDBStatus.INVALID_OPERATION, op['op'], str(e))
                 elif isinstance(op, TSDBOp_RemoveTrigger):
                     try:
                         response = self._remove_trigger(op)
                     except Exception as e:
                         print('Could not complete trigger removal. Reverting to last transaction.', e)
-                        self.server.triggers = backup_triggers
-                        response = TSDBOp_Return(TSDBStatus.INVALID_OPERATION, op['op'])
+                        response = TSDBOp_Return(TSDBStatus.INVALID_OPERATION, op['op'], str(e))
+                elif isinstance(op, TSDBOp_Commit):
+                    try:
+                        response = self._commit(op)
+                    except Exception as e:
+                        self.server.db.rollback()
+                        response = TSDBOp_Return(TSDBStatus.INVALID_OPERATION, op['op'], str(e))
+                elif isinstance(op, TSDBOp_Rollback):
+                    try:
+                        response = self._rollback(op)
+                    except Exception as e:
+                        response = TSDBOp_Return(TSDBStatus.INVALID_OPERATION, op['op'], str(e))
                 else:
                     response = TSDBOp_Return(TSDBStatus.UNKNOWN_ERROR, op['op'])
             self.conn.write(serialize(response.to_json()))

@@ -253,6 +253,22 @@ class TSSimilarityHandler(tornado.web.RequestHandler):
                 return
         except BaseException as e:
             json_error(self, 400, reason=str(e))
+
+class TSCommitHandler(tornado.web.RequestHandler):
+    def post(self):
+        try:
+            res = client.commit()
+            write_resp(self, res)
+        except BaseException as e:
+            json_error(self, 400, reason=str(e))
+
+class TSRollbackHandler(tornado.web.RequestHandler):
+    def post(self):
+        try:
+            res = client.rollback()
+            write_resp(self, res)
+        except BaseException as e:
+            json_error(self, 400, reason=str(e))
             
 class Application(tornado.web.Application):
     def __init__(self):
@@ -260,7 +276,9 @@ class Application(tornado.web.Application):
             (r"/api/timeseries", TSHandler),
             (r"/api/timeseries/upsert", TSUpsertHandler),
             (r"/api/timeseries/augmented", TSAugmentHandler),
-            (r"/api/timeseries/similarity", TSSimilarityHandler)
+            (r"/api/timeseries/similarity", TSSimilarityHandler),
+            (r"/api/commit", TSCommitHandler),
+            (r"/api/rollback", TSRollbackHandler)
         ]
         tornado.web.Application.__init__(self, handlers)
 
