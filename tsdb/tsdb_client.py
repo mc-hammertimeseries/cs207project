@@ -25,6 +25,16 @@ class TSDBClient(object):
         serialized_json = serialize(op.to_json())
         return self._send(serialized_json)
 
+    def commit(self):
+        op = TSDBOp_Commit(primary_key, metadata_dict)
+        serialized_json = serialize(op.to_json())
+        return self._send(serialized_json)
+
+    def rollback(self):
+        op = TSDBOp_Rollback(primary_key, metadata_dict)
+        serialized_json = serialize(op.to_json())
+        return self._send(serialized_json)
+
     def select(self, metadata_dict={}, fields=None, additional=None):
         op = TSDBOp_Select(metadata_dict, fields, additional)
         serialized_json = serialize(op.to_json())

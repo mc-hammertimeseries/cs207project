@@ -35,6 +35,14 @@ class TSDBProtocol(asyncio.Protocol):
         self.server.db.delete_ts(op['pk'])
         return TSDBOp_Return(TSDBStatus.OK, op['op'])
 
+    def _commit(self, op):
+        self.server.db.commit()
+        return TSDBOp_Return(TSDBStatus.OK, op['op'])
+
+    def _rollback(self, op):
+        self.server.db.rollback()
+        return TSDBOp_Return(TSDBStatus.OK, op['op'])
+
     def _upsert_meta(self, op):
         self.server.db.upsert_meta(op['pk'], op['md'])
         self._run_trigger('upsert_meta', [op['pk']])

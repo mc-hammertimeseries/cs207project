@@ -71,6 +71,26 @@ class TSDBOp_DeleteTS(TSDBOp):
     def from_json(cls, json_dict):
         return cls(json_dict['pk'])
 
+class TSDBOp_Commit(TSDBOp):
+
+    def __init__(self, pk):
+        super().__init__('commit')
+        self['pk'] = pk
+
+    @classmethod
+    def from_json(cls, json_dict):
+        return cls(json_dict['pk'])
+
+class TSDBOp_Rollback(TSDBOp):
+
+    def __init__(self, pk):
+        super().__init__('rollback')
+        self['pk'] = pk
+
+    @classmethod
+    def from_json(cls, json_dict):
+        return cls(json_dict['pk'])
+
 
 class TSDBOp_Return(TSDBOp):
 
