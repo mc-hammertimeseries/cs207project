@@ -117,7 +117,8 @@ class DocDB:
                 # use get_ranges from B+tree and then flatten
                 disk_pks.append(set([item for sublist in bpt.get_ranges(op, metakey) for item in sublist]))
             else: # string or bool
-
+                disk_pks.append(set(self.indices[m][meta[m]]))
+                
         disk_pks = [k for k in set.intersection(*disk_pks) if k not in local_pks]
 
         disk_matchedfielddicts = []
