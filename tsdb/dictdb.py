@@ -105,7 +105,7 @@ class DictDB:
         pks = []
         matchedfielddicts = []
         if not meta:
-            pks = self.rows.keys()
+            pks = list(self.rows.keys())
         # implement select, AND'ing over the filters in the md metadata dict
         # remember that each item in the dictionary looks like key==value
         else:
