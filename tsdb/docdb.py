@@ -5,17 +5,8 @@ import os
 import glob
 import pickle
 from . import DictDB 
-from . import BPlusTree
+from btree import BPlusTree
 from timeseries import TimeSeries
-
-OPMAP = {
-    '<': operator.lt,
-    '>': operator.gt,
-    '==': operator.eq,
-    '!=': operator.ne,
-    '<=': operator.le,
-    '>=': operator.ge
-}
 
 
 class DocDB:
