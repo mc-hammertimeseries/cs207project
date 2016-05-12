@@ -1,10 +1,10 @@
 from tornado import httpserver
 from tornado import gen
-from tornado.httpclient import AsyncHTTPClient
 from tornado.ioloop import IOLoop
 import tornado.web
 import tornado.escape
 from tsdb import TSDBClient
+from collections import OrderedDict
 from tsdb.tsdb_error import TSDBStatus
 import timeseries as ts
 from urllib.parse import urlparse, parse_qs
@@ -49,7 +49,20 @@ def get_metadata_dict(query):
                 field_params["<="] = float(query["to" + str(i)][0])
             metadata_dict[field_name] = field_params
         elif "value" + str(i) in query:
-            metadata_dict[field_name] = query["value" + str(i)][0]
+            val = query["value" + str(i)][0]
+            if "dtype" + str(i) in query:
+                dtype = query["dtype" + str(i)][0]
+                if dtype == "int":
+                    val = int(val)
+                elif dtype == "float":
+                    val = float(val)
+                elif dtype == "bool":
+                    if val.lower() == "false" or val == 0:
+                        val = False
+                    else:
+                        val = True
+                    
+            metadata_dict[field_name] = val
         else:
             json_error(self, 400, reason="Query for field requires corresponding value, from, or to params, e.g. field1=colname&value1=colvalue")
             return None
@@ -177,25 +190,66 @@ class TSSimilarityHandler(tornado.web.RequestHandler):
         query = parse_qs(o.query)
         
         try:
-            if 'pk' not in query:
-                json_error(self, 400, reason="Must supply a pk to perform a similarity search over")
-                return
-            pk = query['pk'][0]
-            res = client.select({'pk':pk}, fields=['ts'])
-            if res[0] == TSDBStatus.OK:
-                times, vals = res[1][pk]['ts']
-                ts_query = ts.TimeSeries(times, vals)
+            pks = {}
+            for i in range(5):
+                if 'pk' + str(i) in query:
+                    pk = query['pk'+str(i)][0]
+                    res = client.select({'pk':pk}, fields=['ts'])
+                    if res[0] == TSDBStatus.OK:
+                        times, vals = res[1][pk]['ts']
+                        ts_query = ts.TimeSeries(times, vals)
+                        pks[(i, pk)] = ts_query
+                    else:
+                        json_error(self, 400, reason="Invalid pk {} supplied, could not select it.".format(pk))
+                        return
+                    
+            if len(pks) > 0:
                 metadata_dict = get_metadata_dict(query)
                 if metadata_dict is None:
                     return
-
+                
                 # get additional params
+                # if sorting by one of the selected vantage points need to
+                # return everything for other vantage points to make sure correct output
                 additional = get_additional_params(query)
-                res = client.augmented_select('corr', ['d_vp-1'], ts_query, metadata_dict, additional)
-                write_resp(self, res)
+                sort_by = None
+                limit = None
+                if additional is not None and 'sort_by' in additional and additional['sort_by'][1:-1] == 'd_vp-':
+                    sort_by = additional['sort_by']
+                    if 'limit' in additional:
+                        limit = additional['limit']
+                    additional = None
+                    
+                payload = OrderedDict()
+                for k, v in pks.items():
+                    idx, pk = k
+                    resp = client.augmented_select('corr', ['d_vp-'+str(idx)], v, metadata_dict, additional)
+                    if resp[0] == TSDBStatus.OK:
+                        for pk in resp[1]:
+                            if pk in payload:
+                                payload[pk] = {**(resp[1][pk]), **(payload[pk])}
+                            else:
+                                payload[pk] = resp[1][pk]
+                    else:
+                        json_error(self, 400, reason="Error occurred on corr calculation for {}.".format(pk))
+                        return
+                if sort_by is not None:
+                    sort_by_field = sort_by[1:]
+                    sort_by_dir = sort_by[0]
+                    # zip payload and sort
+                    payload_tuples = list(payload.items())
+                    if sort_by_dir == "+":
+                        payload_tuples.sort(key = lambda x: x[1][sort_by_field])
+                    else:
+                        payload_tuples.sort(key = lambda x: -x[1][sort_by_field])
+                    if limit:
+                        payload_tuples = payload_tuples[0:limit]
+                    payload = OrderedDict(payload_tuples)
+                
+                write_resp(self, (TSDBStatus.OK, payload))
                     
             else:
-                json_error(self, 400, reason="Invalid pk supplied, could not select it.")
+                json_error(self, 400, reason="Must supply list of pks, e.g. pk1=1&pk2=2...")
                 return
         except BaseException as e:
             json_error(self, 400, reason=str(e))

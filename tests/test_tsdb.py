@@ -97,6 +97,9 @@ def test_rest_api():
     # get timeseries
     payload = requests.get("http://localhost:5000/api/timeseries?field1=pk&value1=1&fields=blarg&fields=order").json()['Payload']
     assert payload == [['1', {'blarg': 123, 'order': 1}]]
+    
+    payload = requests.get("http://localhost:5000/api/timeseries?field1=order&value1=1&dtype1=int").json()['Payload']
+    assert payload == [['1', {'blarg': 123, 'order': 1, 'pk': '1'}]]
     # insert second timeseries
     status = requests.post("http://localhost:5000/api/timeseries", json = {'t':list(range(1,10)), 'v':list(range(1,10)), 'pk':"2"}).json()['Status']
     assert status == 'OK'
@@ -104,7 +107,7 @@ def test_rest_api():
     status = requests.post("http://localhost:5000/api/timeseries/upsert", json = {'pk':"2", 'blarg':123, 'order':2}).json()['Status']
     assert status == 'OK'
     # get similarity search
-    similarity = requests.get("http://localhost:5000/api/timeseries/similarity?pk=1&sort_by=order&sort_by_increasing=false").json()['Payload']
+    similarity = requests.get("http://localhost:5000/api/timeseries/similarity?pk1=1&sort_by=order&sort_by_increasing=false").json()['Payload']
     assert similarity == [['2', {'d_vp-1': 0.0}], ['1', {'d_vp-1': 0.0}]]
     
     # augmented handler
@@ -134,10 +137,19 @@ def test_rest_api():
     assert payload == [['1', {'blarg': 123, 'order': 1, 'pk': '1'}]]
     payload = requests.get("http://localhost:5000/api/timeseries/augmented?proc=stats&target=mean&target=std&sort_by=order&sort_by_increasing=false&limit=1&field1=order&from1=0&to1=1").json()['Payload']
     assert payload == [['1', {'mean': 105.0, 'std': 2.581988897471611}]]
-    payload = requests.get("http://localhost:5000/api/timeseries/similarity?pk=1&sort_by=order&sort_by_increasing=false&field1=order&from1=1&to1=1").json()['Payload']
+    payload = requests.get("http://localhost:5000/api/timeseries/similarity?pk1=1&sort_by=order&sort_by_increasing=false&field1=order&value1=1&dtype1=int").json()['Payload']
     assert payload == [['1', {'d_vp-1': 0.0}]]
     
-    # delete two timeseries
+    # delete two timeseries 2, readd with random values
+    status = requests.delete("http://localhost:5000/api/timeseries?pk=2").json()['Status']
+    assert status == 'OK'
+    status = requests.post("http://localhost:5000/api/timeseries", json = {'t':list(range(1,10)), 'v':[1,5,4,3,6,7,9,2,4], 'pk':"2"}).json()['Status']
+    assert status == 'OK'
+    # run similarity
+    payload = requests.get("http://localhost:5000/api/timeseries/similarity?pk1=1&pk2=2&sort_by=d_vp-1&limit=1").json()['Payload']
+    assert payload == [['1', {'d_vp-1': 0.0, 'd_vp-2': 1.414001177691696}]]
+    
+    # delete the timeseries to clean up
     status = requests.delete("http://localhost:5000/api/timeseries?pk=1").json()['Status']
     assert status == 'OK'
     status = requests.delete("http://localhost:5000/api/timeseries?pk=2").json()['Status']
