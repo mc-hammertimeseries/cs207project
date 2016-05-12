@@ -51,7 +51,6 @@ class AssignmentEllision(FlowgraphOptimization):
 
 		def visit(self, flowgraph):
 				nodeids = flowgraph.topological_sort()
-				print(nodeids)
 				for nodeid in nodeids:
 						node = flowgraph.nodes[nodeid]
 						if node.type == FGNodeType.assignment:

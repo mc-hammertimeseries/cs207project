@@ -31,8 +31,10 @@ class Pipeline(object):
     ir.flowgraph_pass( AssignmentEllision() )
     ir.flowgraph_pass( DeadCodeElimination() )
     ir.topological_flowgraph_pass( InlineComponents() )
-    for f in ir.graphs.values():
-        print(f.dotfile())
+
+    # Uncomment to print out a flowgraph
+    # for f in ir.graphs.values():
+    #     print(f.dotfile())
 
     # PCode Generation
     pcodegen = PCodeGenerator()

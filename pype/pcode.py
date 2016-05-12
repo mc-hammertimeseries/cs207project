@@ -31,7 +31,7 @@ class PCodeOp(object):
 	@staticmethod
 	async def libraryfunction(in_qs, out_qs, function_ref):
 		def f(*inputs):
-			raise NotImplemented
+			return function_ref(*inputs)
 		await PCodeOp._node(in_qs, out_qs, f)
 
 	@staticmethod
@@ -81,7 +81,6 @@ class PCode(object):
 		return_future = asyncio.Future()
 		asyncio.ensure_future(self.driver(input_args, return_future))
 		loop = asyncio.get_event_loop()
-		loop.set_debug(True)
 		loop.run_until_complete(return_future)
 		return return_future.result()[0]
 
@@ -99,9 +98,6 @@ class PCodeGenerator(FlowgraphOptimization):
 		qs = {} # { (src,dst)=>asyncio.Queue(), ... }
 
 		# Populate qs by iterating over inputs of every node
-		# TODO
-		# hint: destination nodes should be in flowgraph nodes
-		# hint: sources are their inputs
 		for nodeid, node in flowgraph.nodes.items():
 			for input in node.inputs:
 				qs[(input, nodeid)] = asyncio.Queue()
