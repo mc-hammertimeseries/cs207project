@@ -13,10 +13,12 @@ from setuptools import setup
 
 
 def setup_package():
-    needs_sphinx = {'build_sphinx', 'upload_docs'}.intersection(sys.argv)
-    sphinx = ['sphinx'] if needs_sphinx else []
-    setup(setup_requires=['six', 'pyscaffold>=2.5a0,<2.6a0'] + sphinx,
-          use_pyscaffold=True)
+    # needs_sphinx = {'build_sphinx', 'upload_docs'}.intersection(sys.argv)
+    # sphinx = ['sphinx'] if needs_sphinx else []
+    setup(name='cs207project', setup_requires=['six', 'pyscaffold>=2.5a0,<2.6a0'],
+          use_pyscaffold=True,
+          install_requires=["numpy", "scipy", "cython", "tornado"],
+          version='1.0')
 
 
 if __name__ == "__main__":

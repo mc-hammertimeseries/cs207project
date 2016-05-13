@@ -2,7 +2,7 @@ from pytest import raises
 import sys
 from io import StringIO
 import numpy as np
-
+from multiprocessing import Process
 from timeseries import TimeSeries
 from ..pype.lexer import lexer
 from ..pype.parser import parser
@@ -80,3 +80,25 @@ def test_ast():
 
     # Put back
     sys.stdout = old_stdout
+
+def test_pipeline():
+    # Test the actual Pipeline function
+    def execute_test():
+        ts = TimeSeries([1, 2, 3, 4, 5], np.linspace(0, 1, 5))
+
+        test_0 = Pipeline('tests/samples/example0.ppl')
+        test_1 = Pipeline('tests/samples/example2.ppl')
+
+        # Check that pcodes are as they should be
+        assert set(test_0.pcodes) == set('standardize')
+        assert set(test_1.pcodes) == set('mul', 'dist', 'dist2')
+
+        # Test that standardizing workds
+        value = test_0['standardize'].run(ts)
+        assert np.isclose(value.mean(), 0)
+        assert np.isclose(value.std(), 1)
+
+    test_process = Process(target=execute_test)
+    test_process.start()
+    test_process.join()
+ 
