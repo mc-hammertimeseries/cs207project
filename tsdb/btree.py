@@ -448,8 +448,8 @@ class BPlusTree(BTree):
             try:
                 key_ = a.contents[ix]
             # if we are over the bounds
-            except AttributeError: 
-                return None
+            except Exception: 
+                return results
             # work from key to the end of the leaf
             ix_ = a.contents.index(key_)
             results.extend(a.data[ix_:])
