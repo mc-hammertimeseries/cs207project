@@ -442,13 +442,13 @@ class BPlusTree(BTree):
             return self.get(key)
         if op in ['>=','>']:
             # if index is 5, go to next leaf 
-            if ix == self.order:
+            if ix == self.order or key > max(a.contents):
                 a = a.next
                 ix = 0
             try:
                 key_ = a.contents[ix]
             # if we are over the bounds
-            except Exception: 
+            except Exception:
                 return results
             # work from key to the end of the leaf
             ix_ = a.contents.index(key_)
@@ -471,7 +471,7 @@ class BPlusTree(BTree):
                 # include next key if we do <=
                 idx += 1
                 # if we're out of bounds for leaf, go to next one
-                if idx == self.order + 1:
+                if idx >= self.order + 1 or key > max(key_leaf.contents):
                     key_leaf = key_leaf.next
                     idx = 1
             results = []
