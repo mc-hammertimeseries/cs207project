@@ -11,6 +11,7 @@ import time
 from rest_api import Application
 from tornado.ioloop import IOLoop
 import requests
+import shutil
 
 schema = {
   'pk': {'type': "str", 'index': None},  #will be indexed anyways
@@ -32,6 +33,9 @@ vps = [True, False, False, True]  # Vantage points for first and last timeseries
 tsrs = [TimeSeries(times, values1 if i < 2 else values2) for i in range(4)]  # only two value ranges
 
 def setup_module(module):
+    if os.path.exists("documents/"):
+        shutil.rmtree('documents/')
+
     # Extend schema
     for i in range(4):
         if vps[i]:
@@ -162,7 +166,7 @@ def test_rest_api():
     assert status == 'OK'
     # run similarity
     payload = requests.get("http://localhost:5000/api/timeseries/similarity?pk1=1&pk2=2&sort_by=d_vp-1&limit=1").json()['Payload']
-    assert payload == [['1', {'d_vp-1': 0.0, 'd_vp-2': 1.4124686692997668}]]
+    assert payload == [['1', {'d_vp-1': 0.0, 'd_vp-2': 1.2622762384882298}]]
     
     # delete the timeseries to clean up
     status = requests.delete("http://localhost:5000/api/timeseries?pk=1").json()['Status']

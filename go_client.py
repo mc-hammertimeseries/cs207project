@@ -54,14 +54,14 @@ def main():
     for k in tsdict:
         client.insert_ts(k, tsdict[k])
         client.upsert_meta(k, metadict[k])
-
+    
     print("UPSERTS FINISHED")
     print('---------------------')
     print("STARTING SELECTS")
 
     print('---------DEFAULT------------')
     client.select()
-
+    
     #in this version, select has sprouted an additional keyword argument
     # to allow for sorting. Limits could also be enforced through this.
     print('---------ADDITIONAL------------')
@@ -69,6 +69,8 @@ def main():
 
     print('----------ORDER FIELD-----------')
     _, results = client.select(fields=['order'])
+    print(results)
+
     for k in results:
         print(k, results[k])
 
@@ -80,11 +82,11 @@ def main():
 
     print('------------All fields, blarg 1 ---------')
     client.select({'blarg': 1}, fields=[])
-
+    
     print('------------order 1 blarg 2 no fields---------')
     _, bla = client.select({'order': 1, 'blarg': 2})
     print(bla)
-
+    
     print('------------order >= 4  order, blarg and mean sent back, also sorted---------')
     _, results = client.select({'order': {'>=': 4}}, fields=['order', 'blarg', 'mean'], additional={'sort_by': '-order'})
     for k in results:
@@ -100,8 +102,6 @@ def main():
     #we first create a query time series.
     _, query = tsmaker(0.5, 0.2, 0.1)
 
-    # your code here begins
-
     # Step 1: in the vpdist key, get distances from query to vantage points
     # this is an augmented select
     client.insert_ts('ts-query',query)
@@ -113,14 +113,18 @@ def main():
             min_dist = dists[vp]
             nearest_vp_to_query = vp
     print(nearest_vp_to_query,min_dist)
+
     #1b: choose the lowest distance vantage point
     # you can do this in local code
     # Step 2: find all time series within 2*d(query, nearest_vp_to_query)
     #this is an augmented select to the same proc in correlation
     # nearestwanted = client.augmented_select('corr', ['d_vp-1'], arg=query,
     #     metadata_dict={'d_vp-1': {'<=': 2.0*min_dist}}, additional={'sort_by': '+d_vp-1', 'limit': 10})
+    #print(client.select(fields=['d_vp-1']))
+    #print(2*min_dist)
     nearestwanted = client.select(fields=['d_vp-1'], metadata_dict={'d_vp-1': {'<=': 2.0*min_dist}}, additional={'sort_by': '+d_vp-1', 'limit': 10})
     print(nearestwanted)
+    
     nearestwanted = list(nearestwanted[1].keys())[0]
     #2b: find the smallest distance amongst this ( or k smallest)
     #you can do this in local code
@@ -132,6 +136,7 @@ def main():
     plt.plot(query)
     plt.plot(tsdict[nearestwanted])
     plt.show()
+    
 
 if __name__=='__main__':
     main()

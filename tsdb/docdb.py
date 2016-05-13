@@ -119,8 +119,9 @@ class DocDB:
     def select(self, meta=None, fields=None, additional=None):
         # first select ts from db
         local_pks, local_matchedfielddicts = self.db.select(
-            meta, fields, additional)
+            meta, fields, None)
         # then select ts from disk:
+
         disk_pks = []
         if not meta:
             for doc in glob.glob('documents/ts/*.json'):

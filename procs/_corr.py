@@ -56,7 +56,7 @@ def kernel_corr(ts1, ts2, mult=1):
         s = 0
         for i in range(len(v1)):
             # print(np.dot(v1, np.concatenate((np.zeros(i),v2[i:]))))
-            s += np.exp(np.dot(v1, np.concatenate((np.zeros(i),v2[i:]))))
+            s += np.exp(np.dot(v1, np.concatenate((v2[i:], v2[0:i]))))
         return s
 
     return kernel(ts1, ts2) / np.sqrt(kernel(ts1, ts1) * kernel(ts2, ts2))
