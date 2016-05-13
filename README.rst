@@ -23,7 +23,9 @@ A package for storing and manipulating time series.
 
 Installation
 ------------
-text text text
+**The package includes an installable package file in** ``dist/`` **. Simply unpack the file, enter the directory, and run**::
+
+   python setup.py install
 
 The files needed to build Cython FFT module for computing cross-correlation from scratch (``fft.pyx``, ``cfft.pxd``, ``fft_defs.h``, ``setup.py``) are included, along with the generated ``fft.c`` and ``fft.so`` files. If it works on your system, the easiest option is to just use the ``fft.so`` file. Otherwise, you must install version 3.3.4 of `FFTW <http://www.fftw.org/>`_ and compile the Cython files manually. This can be done by running::
 
@@ -37,13 +39,13 @@ Persistence, REST API, and Cython-Wrapped FFTW
 
 Persistence
 ===========
-In our database, time series are each stored in separate files called ``ts{i}.json``, where ``{i}`` is replaced by the primary key. We also have one pickled index file ``indices.pkl`` that stores data structures for all secondary indices. For example, one part of ``indices.pkl`` storing the secondary index for ``order`` might look like
+In our database, time series are each stored in separate files called ``{pk}.json``, where ``{pk}`` is replaced by the primary key. We also have one pickled index file ``indices.pkl`` that stores data structures for all secondary indices. For example, one part of ``indices.pkl`` storing the secondary index for ``order`` might look like
 
     ``'order': {B+-tree}``
 
 where ``{B+-tree}`` is a B+-tree whose nodes are lists of primary keys with the given value of ``order``.
 
-To make our database persistent, we store both a local copy of our database and a copy on disk. When a commit occurs, the local copy is written to disk. If a rollback occurs, the disk copy is written locally. Time series files that are scheduled for deletion are given the extension ``.trash``, and when a commit happens, all files with that extension are deleted. In the event of a rollback, the extension is removed.
+To make our database persistent, we keep a serialized DocDB on disk, which is a document-based store. This is complemented with a DictDB in memory, which tracks uncommitted changed. When a commit occurs, the DictDB copy is flushed to disk, becoming part of the DocDB. If a rollback occurs, the DictDB is emptied and the persisted indices are loaded back into memory, replacing any indices that still were in memory and may have changed due to uncomitted changes. Time series files that are scheduled for deletion are given the extension ``.trash``, and when a commit happens, all files with that extension are deleted. In the event of a rollback, the extension is changed back to its original.
 
 REST API
 ========
