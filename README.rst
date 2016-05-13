@@ -21,8 +21,8 @@ A package for storing and manipulating time series.
 .. image:: https://coveralls.io/repos/github/mc-hammertimeseries/cs207project/badge.svg?branch=master 
    :target: https://coveralls.io/github/mc-hammertimeseries/cs207project?branch=master
 
-Installation
-------------
+Installation/Run 
+----------------
 **The package includes an installable package file in** ``dist/`` **. Simply unpack the file, enter the directory, and run**::
 
    python setup.py install
@@ -32,6 +32,8 @@ The files needed to build Cython FFT module for computing cross-correlation from
     python setup.py build_ext --inplace
 
 from ``/procs/fft/``.
+
+To run the server, run ``python go_server.py``, and make sure the documents folder is deleted by doing ``rm -r documents/``. To run REST API, run ``python rest_api.py``. Finally, to run the client, run ``python go_client.py``. 
 
 
 Persistence, REST API, and Cython-Wrapped FFTW
