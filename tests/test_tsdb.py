@@ -166,7 +166,7 @@ def test_rest_api():
     assert status == 'OK'
     # run similarity
     payload = requests.get("http://localhost:5000/api/timeseries/similarity?pk1=1&pk2=2&sort_by=d_vp-1&limit=1").json()['Payload']
-    assert payload == [['1', {'d_vp-1': 0.0, 'd_vp-2': 1.2622762384882298}]]
+    assert payload[0][1]['d_vp-1']==0.0 and np.isclose(payload[0][1]['d_vp-2'],1.2622762384882293)
     
     # delete the timeseries to clean up
     status = requests.delete("http://localhost:5000/api/timeseries?pk=1").json()['Status']
